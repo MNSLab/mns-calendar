@@ -3,7 +3,7 @@
   var slice = [].slice;
 
   (function($, window) {
-    var MnsCalendar, fn, j, len, ref, tag_name;
+    var MnsCalendar, Row, bind, fn, j, len, ref, tag_name;
     window.tag = function() {
       var attrs, child, id, j, klass, len, name, obj, params, sc;
       name = arguments[0], params = 2 <= arguments.length ? slice.call(arguments, 1) : [];
@@ -19,7 +19,6 @@
       }
       if (typeof params[0] === 'object' && params[0].constructor.name === 'Object') {
         attrs = params.shift();
-        console.log(attrs);
         obj.attr(attrs);
       }
       for (j = 0, len = params.length; j < len; j++) {
@@ -32,7 +31,7 @@
       }
       return obj;
     };
-    ref = ['div', 'i', 'span', 'a', 'nav'];
+    ref = ['div', 'i', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td'];
     fn = function(s) {
       return window[s] = function() {
         var params;
@@ -45,6 +44,47 @@
       fn(tag_name);
     }
     window['nbsp'] = document.createTextNode(String.fromCharCode(160));
+    bind = function(obj, name) {
+      return function() {
+        return obj[name]();
+      };
+    };
+    Row = (function() {
+      function Row(year, month, start, end, slots) {
+        this.year = year;
+        this.month = month;
+        this.start = start;
+        this.end = end;
+      }
+
+      Row.prototype.add = function(event) {};
+
+      Row.prototype.render_header = function() {
+        var i, k, ref1, ref2, res;
+        res = [];
+        for (i = k = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
+          res.push(th({}, (new Date(this.year, this.month, i)).getDate()));
+        }
+        return tr('.mns-cal-row-header', res);
+      };
+
+      Row.prototype.render_bg = function() {};
+
+      Row.prototype.render = function() {
+        var bg, html, i, k;
+        bg = this.render_bg();
+        html = [this.render_header()];
+        for (i = k = 1; k <= 4; i = ++k) {
+          html.push(tr('.mns-cal-row', td({
+            colspan: 7
+          })));
+        }
+        return div('.mns-cal-week', bg, div('.mns-cal-rows', html));
+      };
+
+      return Row;
+
+    })();
     MnsCalendar = (function() {
       var prefix;
 
@@ -56,6 +96,7 @@
         i18n: {
           lang: 'pl',
           translations: {
+            months: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'],
             today: 'Dzisiaj',
             next: 'Następny miesiąc',
             prev: 'Poprzedni miesiąc',
@@ -67,27 +108,103 @@
       function MnsCalendar(el, options) {
         this.options = $.extend({}, this.defaults, options);
         this.$el = $(el);
-        this.$el.append($('<div class="mns-cal" />').append(this.setup_skeleton()));
+        this.$el.append(this.setup_skeleton());
+        this.title = this.options['title'];
+        this.date = this.options['date'];
+        this.month = 11;
+        this.year = 2016;
+        this.start_of_week = 1;
+        this.events = [
+          {
+            title: 'Happy Birthday',
+            start: '2016-02-01',
+            end: '2016-02-03',
+            icon: 'birthday-cake',
+            "class": 'text-warning'
+          }
+        ];
+        this.t = this.options['i18n']['translations'];
         this.render();
+        this.$el.find('.mns-cal-prev').click(bind(this, 'prev_month'));
+        this.$el.find('.mns-cal-next').click(bind(this, 'next_month'));
+        this.$el.find('.mns-cal-today').click(bind(this, 'today_month'));
       }
 
-      MnsCalendar.prototype.myMethod = function(echo) {
-        return this.$el.html(this.options.paramA + ': ' + echo);
+      MnsCalendar.prototype.change_month = function(diff) {
+        this.month += diff;
+        while (this.month < 0) {
+          this.month += 12;
+          this.year -= 1;
+        }
+        while (this.month > 11) {
+          this.month -= 12;
+          this.year += 1;
+        }
+        return this.render();
       };
 
-      MnsCalendar.prototype.set_month = function(month, year) {
-        return console.log(month, year);
+      MnsCalendar.prototype.prev_month = function() {
+        return this.change_month(-1);
       };
 
-      MnsCalendar.prototype.get_data = function() {};
+      MnsCalendar.prototype.next_month = function() {
+        return this.change_month(1);
+      };
+
+      MnsCalendar.prototype.today_month = function() {
+        var now;
+        now = new Date();
+        this.month = now.getMonth();
+        this.year = now.getFullYear();
+        return this.render();
+      };
+
+      MnsCalendar.prototype.load_data = function() {};
 
       MnsCalendar.prototype.render = function() {
-        return this.$el.find('.mns-cal-title').text('Hello');
+        var body, day, dow, event, k, l, len1, len2, len3, n, ref1, results, row, rows, start;
+        console.log(this, 'Rendering');
+        dow = function(y, m, d) {
+          return (new Date(y, m, d)).getDay();
+        };
+        this.update_header();
+        rows = [];
+        day = 1;
+        while (dow(this.year, this.month, day) !== this.start_of_week) {
+          day--;
+        }
+        while (true) {
+          start = new Date(this.year, this.month, day);
+          if (day > 0 && (start.getDay() === this.start_of_week) && (start.getMonth() !== this.month)) {
+            break;
+          }
+          rows.push(new Row(this.year, this.month, day, day + 7, this.max_slots));
+          day += 7;
+        }
+        ref1 = this.events;
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          event = ref1[k];
+          for (l = 0, len2 = rows.length; l < len2; l++) {
+            row = rows[l];
+            row.add(event);
+          }
+        }
+        body = this.$el.find('.mns-cal-body');
+        body.empty();
+        results = [];
+        for (n = 0, len3 = rows.length; n < len3; n++) {
+          row = rows[n];
+          results.push(body.append(row.render()));
+        }
+        return results;
       };
 
-      MnsCalendar.prototype.reshow = function() {};
-
       MnsCalendar.prototype.update = function() {};
+
+      MnsCalendar.prototype.update_header = function() {
+        this.$el.find('.mns-cal-title').text(this.title);
+        return this.$el.find('.mns-cal-date').text(this.t.months[this.month] + " " + this.year);
+      };
 
       MnsCalendar.prototype.setup_skeleton = function() {
         var body, form, header, navbar, t;
@@ -97,7 +214,7 @@
         header = div('.navbar-header', div('.navbar-brand', i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')), div('.navbar-text.mns-cal-date'));
         form = div('.navbar-form.navbar-right', div('.btn-toolbar', div('.btn-group', a('.btn.btn-default.mns-cal-today', t['today'])), div('.btn-group', a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')), a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right')))));
         navbar = nav('.navbar.navbar-default', div('.container-fluid', header, form));
-        body = div('.panel.panel-default');
+        body = div('.panel.panel-default.mns-cal-body');
         return div('.mns-cal', navbar, body);
       };
 
@@ -125,8 +242,8 @@
 
   $(function() {
     return $('body').append(a('.btn.btn-default.btn-xs', {
-      href: 'http://www.google.com'
-    }, i('.fa.fa-birthday-cake'), ' Happy Birthday'));
+      href: 'http://www.mnslab.pl'
+    }, i('.fa.fa-birthday-cake'), ' MNS Lab'));
   });
 
 }).call(this);

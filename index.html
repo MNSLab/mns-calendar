@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset='utf-8'>
     <title>MNS Calendar</title>
-    <link href='https://bootswatch.com/cosmo/bootstrap.min.css' rel='stylesheet'>
-    <link href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' rel='stylesheet'>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js'></script>
+    <link href='bower_components/bootswatch/cosmo/bootstrap.min.css' rel='stylesheet'>
+    <link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet'>
+    <script src='bower_components/jquery/dist/jquery.min.js'></script>
     <link href='dist/mns_calendar.css' rel='stylesheet'>
     <script src='dist/mns_calendar.js'></script>
   </head>
@@ -29,19 +30,37 @@
             <i class='fa fa-calendar'></i>
             MNS Calendar
           </h2>
-          <h3>Requirements</h3>
-          <h4>Browser</h4>
-          <ul class='list'>
-            <li>jQuery</li>
-            <li>bootstrap</li>
-            <li>font-awesome</li>
-          </ul>
-          <h4>Development</h4>
-          <ul class='list'>
-            <li>Haml</li>
-            <li>coffeescript</li>
-            <li>sass</li>
-          </ul>
+          <h4>Requirements</h4>
+          <div class='row'>
+            <div class='col-sm-6'>
+              <h5>Browser</h5>
+              <ul class='list'>
+                <li>
+                  <a href='http://jquery.com'>jQuery</a>
+                </li>
+                <li>
+                  <a href='http://getbootstrap.com'>Bootstrap</a>
+                </li>
+                <li>
+                  <a href='http://fortawesome.github.io/Font-Awesome/'>font-awesome</a>
+                </li>
+              </ul>
+            </div>
+            <div class='col-sm-6'>
+              <h5>Development</h5>
+              <ul class='list'>
+                <li>
+                  <a href='http://haml.info/'>Haml</a>
+                </li>
+                <li>
+                  <a href='http://coffeescript.org'>coffeescript</a>
+                </li>
+                <li>
+                  <a href='http://compass-style.org/'>SASS</a>
+                </li>
+              </ul>
+            </div>
+          </div>
           <hr>
           <h3>Usage</h3>
           <pre>$('#calendar').mnsCalenda({
@@ -64,7 +83,9 @@
         <script>
           (function() {
             $(function() {
-              return $('#calendar').MnsCalendar();
+              return $('#calendar').MnsCalendar({
+                title: 'MNS Calendar'
+              });
             });
           
           }).call(this);

@@ -1,11 +1,12 @@
-!!!
+!!! 5
 %html
   %head
+    %meta{charset: 'utf-8'}
     %title MNS Calendar
-    -# %link{rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'}
-    %link{rel: 'stylesheet', href: 'https://bootswatch.com/cosmo/bootstrap.min.css' }
-    %link{rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css'}
-    %script{src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js'}
+
+    %link{rel: 'stylesheet', href: 'bower_components/bootswatch/cosmo/bootstrap.min.css' }
+    %link{rel: 'stylesheet', href: 'bower_components/font-awesome/css/font-awesome.min.css'}
+    %script{src: 'bower_components/jquery/dist/jquery.min.js'}
 
     %link{ rel: 'stylesheet', href: 'dist/mns_calendar.css' }
     %script{ src: 'dist/mns_calendar.js' }
@@ -35,17 +36,26 @@
           %h2
             %i.fa.fa-calendar
             MNS Calendar
-          %h3 Requirements
-          %h4 Browser
-          %ul.list
-            %li jQuery
-            %li bootstrap
-            %li font-awesome
-          %h4 Development
-          %ul.list
-            %li Haml
-            %li coffeescript
-            %li sass
+          %h4 Requirements
+          %div.row
+            %div.col-sm-6
+              %h5 Browser
+              %ul.list
+                %li
+                  %a{href: 'http://jquery.com'} jQuery
+                %li
+                  %a{href: 'http://getbootstrap.com'} Bootstrap
+                %li
+                  %a{href: 'http://fortawesome.github.io/Font-Awesome/'} font-awesome
+            %div.col-sm-6
+              %h5 Development
+              %ul.list
+                %li
+                  %a{href: 'http://haml.info/'} Haml
+                %li
+                  %a{href: 'http://coffeescript.org'} coffeescript
+                %li
+                  %a{href: 'http://compass-style.org/'} SASS
           %hr
           %h3 Usage
           %pre
