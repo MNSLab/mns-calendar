@@ -1,0 +1,33 @@
+{
+  "name": "mns_calendar",
+  "authors": [
+    "pkubiak <solmyrmag@gmail.com>"
+  ],
+  "description": "jQuery plugin for displaying month calendar",
+  "main": "src/mns_calendar.coffee",
+  "keywords": [
+    "jquery",
+    "bootstrap",
+    "calendar",
+    "mnslab",
+    "mns",
+    "plugin",
+    "month",
+    "agenda"
+  ],
+  "license": "MIT",
+  "homepage": "https://mnslab.pl",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootswatch": "^3.3.6+1",
+    "font-awesome": "^4.6.1",
+    "jquery": "^2.2.3"
+  }
+}
