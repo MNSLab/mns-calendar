@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MNS Calendar</title>
+    <link href='https://bootswatch.com/cosmo/bootstrap.min.css' rel='stylesheet'>
+    <link href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' rel='stylesheet'>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js'></script>
+    <link href='dist/mns_calendar.css' rel='stylesheet'>
+    <script src='dist/mns_calendar.js'></script>
+  </head>
+  <body>
+    <style>
+      .mns-cal > .navbar {
+        border-bottom: 0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        margin-bottom: 0; }
+      .mns-cal > .panel {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0; }
+      .mns-cal table label {
+        display: block;
+        text-align: left; }
+    </style>
+    <div class='container-fluid' style='margin-top:50px'>
+      <div class='col-md-4'>
+        <div class='well'>
+          <h2>
+            <i class='fa fa-calendar'></i>
+            MNS Calendar
+          </h2>
+          <h3>Requirements</h3>
+          <h4>Browser</h4>
+          <ul class='list'>
+            <li>jQuery</li>
+            <li>bootstrap</li>
+            <li>font-awesome</li>
+          </ul>
+          <h4>Development</h4>
+          <ul class='list'>
+            <li>Haml</li>
+            <li>coffeescript</li>
+            <li>sass</li>
+          </ul>
+          <hr>
+          <h3>Usage</h3>
+          <pre>$('#calendar').mnsCalenda({
+            title: 'My Calendar',
+            events: [
+              {
+                id: '123',
+                name: 'Initial event',
+                start: '01-01-2016',
+                end: '01-01-2016',
+                class: 'text-success',
+                icon: 'birthday-cake'
+              }
+            ]
+          })</pre>
+        </div>
+      </div>
+      <div class='col-md-8'>
+        <div id='calendar'></div>
+        <script>
+          (function() {
+            $(function() {
+              return $('#calendar').MnsCalendar();
+            });
+          
+          }).call(this);
+        </script>
+        <!--
+          <div class='mns-cal'>
+            <nav class='navbar navbar-default'>
+              <div class='container-fluid'>
+                <div class='navbar-header'>
+                  <div class='navbar-brand'>
+                    <i class='fa fa-calendar'></i>
+                    <span class='mns-cal-title'>MNS Calendar</span>
+                  </div>
+                  <div class='navbar-text mns-cal-date'>Maj 2016</div>
+                </div>
+                <div class='navbar-form navbar-right'>
+                  <div class='btn-toolbar'>
+                    <div class='btn-group'>
+                      <a class='btn btn-default'>Today</a>
+                    </div>
+                    <div class='btn-group'>
+                      <a class='btn btn-default'>
+                        <i class='fa fa-angle-left'></i>
+                      </a>
+                      <a class='btn btn-default'>
+                        <i class='fa fa-angle-right'></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </nav>
+            <div class='panel panel-default'>
+              <table class='table table-condensed'>
+                <thead>
+                  <tr>
+                    <th>Week</th>
+                    <th>Mon</th>
+                    <th>Thu</th>
+                    <th>Wen</th>
+                    <th>Thur</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                    <th>Sun</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>week #1</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                  </tr>
+                  <tr>
+                    <td colspan='2'></td>
+                    <td colspan='3'>
+                      <span class='label label-success'>asd asd asd asd sd sd s</span>
+                    </td>
+                    <td colspan='3'></td>
+                  </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <th>week #2</th>
+                    <th>8</th>
+                    <th>9</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th>12</th>
+                    <th>13</th>
+                    <th>14</th>
+                  </tr>
+                  <tr>
+                    <td colspan='2'></td>
+                    <td colspan='3'>
+                      <span class='label label-success'>asd asd asd asd sd sd s</span>
+                    </td>
+                    <td colspan='3'></td>
+                  </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <th>week #3</th>
+                    <th>15</th>
+                    <th>16</th>
+                    <th>17</th>
+                    <th>18</th>
+                    <th>19</th>
+                    <th>20</th>
+                    <th>21</th>
+                  </tr>
+                  <tr>
+                    <td colspan='2'></td>
+                    <td colspan='3'>
+                      <span class='label label-success'>asd asd asd asd sd sd s</span>
+                    </td>
+                    <td colspan='3'></td>
+                  </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <th>week #4</th>
+                    <th>22</th>
+                    <th>23</th>
+                    <th>24</th>
+                    <th>25</th>
+                    <th>26</th>
+                    <th>27</th>
+                    <th>28</th>
+                  </tr>
+                  <tr>
+                    <td colspan='2'></td>
+                    <td colspan='3'>
+                      <span class='label label-success'>asd asd asd asd sd sd s</span>
+                    </td>
+                    <td colspan='3'></td>
+                  </tr>
+                </tbody>
+                <tbody>
+                  <tr>
+                    <th>week #5</th>
+                    <th>29</th>
+                    <th>30</th>
+                    <th>31</th>
+                    <th>32</th>
+                    <th>33</th>
+                    <th>34</th>
+                    <th>35</th>
+                  </tr>
+                  <tr>
+                    <td colspan='2'></td>
+                    <td colspan='3'>
+                      <span class='label label-success'>asd asd asd asd sd sd s</span>
+                    </td>
+                    <td colspan='3'></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        -->
+      </div>
+    </div>
+  </body>
+</html>

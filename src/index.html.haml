@@ -1,0 +1,116 @@
+!!!
+%html
+  %head
+    %title MNS Calendar
+    -# %link{rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'}
+    %link{rel: 'stylesheet', href: 'https://bootswatch.com/cosmo/bootstrap.min.css' }
+    %link{rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css'}
+    %script{src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js'}
+
+    %link{ rel: 'stylesheet', href: 'dist/mns_calendar.css' }
+    %script{ src: 'dist/mns_calendar.js' }
+
+  %body
+    :scss
+      .mns-cal {
+        & > .navbar {
+          border-bottom: 0;
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+          margin-bottom: 0;
+        }
+        & > .panel {
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+        }
+
+        & table label {
+          display: block;
+          text-align: left;
+        }
+      }
+    %div.container-fluid{style: 'margin-top:50px'}
+      %div.col-md-4
+        %div.well
+          %h2
+            %i.fa.fa-calendar
+            MNS Calendar
+          %h3 Requirements
+          %h4 Browser
+          %ul.list
+            %li jQuery
+            %li bootstrap
+            %li font-awesome
+          %h4 Development
+          %ul.list
+            %li Haml
+            %li coffeescript
+            %li sass
+          %hr
+          %h3 Usage
+          %pre
+            :plain
+              $('#calendar').mnsCalenda({
+                title: 'My Calendar',
+                events: [
+                  {
+                    id: '123',
+                    name: 'Initial event',
+                    start: '01-01-2016',
+                    end: '01-01-2016',
+                    class: 'text-success',
+                    icon: 'birthday-cake'
+                  }
+                ]
+              })
+
+      %div.col-md-8
+        %div#calendar
+
+        :coffee
+          $ ->
+            $('#calendar').MnsCalendar(
+              title: 'MNS Calendar'
+            );
+        /
+          %div.mns-cal
+            %nav.navbar.navbar-default
+              %div.container-fluid
+                %div.navbar-header
+                  %div.navbar-brand
+                    %i.fa.fa-calendar
+                    %span.mns-cal-title MNS Calendar
+                  %div.navbar-text.mns-cal-date Maj 2016
+                %div.navbar-form.navbar-right
+                  %div.btn-toolbar
+                    %div.btn-group
+                      %a.btn.btn-default Today
+                    %div.btn-group
+                      %a.btn.btn-default
+                        %i.fa.fa-angle-left
+                      %a.btn.btn-default
+                        %i.fa.fa-angle-right
+
+
+            %div.panel.panel-default
+              %table.table.table-condensed
+                %thead
+                  %tr
+                    %th Week
+                    %th Mon
+                    %th Thu
+                    %th Wen
+                    %th Thur
+                    %th Fri
+                    %th Sat
+                    %th Sun
+                - (0..4).each do |w|
+                  %tbody
+                    %tr
+                      - ["week ##{w+1}",7*w+1,7*w+2,7*w+3,7*w+4,7*w+5,7*w+6,7*w+7].each do |d|
+                        %th= d
+                    %tr
+                      %td{colspan: 2}
+                      %td{colspan: 3}
+                        %span.label.label-success asd asd asd asd sd sd s
+                      %td{colspan: 3}
