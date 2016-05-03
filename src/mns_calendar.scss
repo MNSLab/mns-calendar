@@ -62,9 +62,23 @@
 		span.label {
 			display:block;
 			text-align:left;
-			margin:1px 4px;
+			margin:1px 0px;
 			text-overflow: ellipsis;
 			overflow:hidden;
+			cursor: pointer;
+			&:hover {
+				opacity: 0.8;
+			}
+			&:not(.mns-cal-starts-here){
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+			&:not(.mns-cal-ends-here) {
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+			&.mns-cal-starts-here { margin-left: 6px; }
+			&.mns-cal-ends-here { margin-right: 6px; }
 		}
 	}
 }

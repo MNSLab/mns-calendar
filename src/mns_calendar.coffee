@@ -18,6 +18,8 @@
     # set attributes
     if typeof(params[0]) is 'object' and params[0].constructor.name is 'Object'
       attrs = params.shift()
+      if Array.isArray attrs['class']
+        attrs['class'] = attrs['class'].join ' '
       obj.attr(attrs)
 
     # append content
@@ -74,7 +76,7 @@
             break
         console.log ok, start, i
         if ok is true
-          @slots[start][i] = {event: event, colspan: end-start+1}
+          @slots[start][i] = { event: event, colspan: end-start+1, start: start+@start, end: end+@start }
           for j in [start+1..end] by 1
             @slots[j][i] = false
           return true
@@ -96,16 +98,22 @@
             is_active = (new Date(@year, @month, i)).getMonth() is @month
             td( (if is_active then {} else '.active') )
         ) )
-    render_label: (event) ->
+
+    render_label: (event, at_start, at_end) ->
       res =[]
       if event.icon
         res.push i(".fa.fa-#{event.icon}")
         res.push ' '
       res.push event.title
-      span('.label.label-primary', res)
+      klass = ['label', 'label-primary']
+      if at_start
+        klass.push 'mns-cal-starts-here'
+      if at_end
+        klass.push 'mns-cal-ends-here'
+
+      span({class: klass}, res)
 
     render_slot: (id) ->
-      console.log(id, @slots)
       res = []
       for i in [0..6]
         obj = @slots[i][id]
@@ -115,7 +123,11 @@
           res.push td({},'')
         else if type is 'object'
           console.log obj
-          res.push td({colspan: obj.colspan}, @render_label(obj.event) )
+          res.push td({colspan: obj.colspan}, @render_label(
+            obj.event,
+            !overlap_day(@year, @month, obj.start-1, obj.event.start, obj.event.end),
+            !overlap_day(@year, @month, obj.end+1, obj.event.start, obj.event.end)
+          ) )
       tr('.mns-cal-row', res)
 
 
@@ -124,7 +136,6 @@
       html = [@render_header()]
       for i in [0..@slot_count-1]
         html.push(@render_slot(i))
-        #html.push tr('.mns-cal-row', td({colspan: 1}, span('.label.label-primary', 'Lorem ipsum dolores sit amet')), td({colspan:6}))
 
       div('.mns-cal-week', div('.mns-cal-bg', @render_bg() ), div('.mns-cal-rows', table('.table.table-condensed', html ) ) )
 

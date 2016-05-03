@@ -19,6 +19,9 @@
       }
       if (typeof params[0] === 'object' && params[0].constructor.name === 'Object') {
         attrs = params.shift();
+        if (Array.isArray(attrs['class'])) {
+          attrs['class'] = attrs['class'].join(' ');
+        }
         obj.attr(attrs);
       }
       for (k = 0, len = params.length; k < len; k++) {
@@ -106,7 +109,9 @@
           if (ok === true) {
             this.slots[start][i] = {
               event: event,
-              colspan: end - start + 1
+              colspan: end - start + 1,
+              start: start + this.start,
+              end: end + this.start
             };
             for (j = p = ref7 = start + 1, ref8 = end; p <= ref8; j = p += 1) {
               this.slots[j][i] = false;
@@ -139,20 +144,28 @@
         }).call(this)));
       };
 
-      Row.prototype.render_label = function(event) {
-        var res;
+      Row.prototype.render_label = function(event, at_start, at_end) {
+        var klass, res;
         res = [];
         if (event.icon) {
           res.push(i(".fa.fa-" + event.icon));
           res.push(' ');
         }
         res.push(event.title);
-        return span('.label.label-primary', res);
+        klass = ['label', 'label-primary'];
+        if (at_start) {
+          klass.push('mns-cal-starts-here');
+        }
+        if (at_end) {
+          klass.push('mns-cal-ends-here');
+        }
+        return span({
+          "class": klass
+        }, res);
       };
 
       Row.prototype.render_slot = function(id) {
         var i, l, obj, res, type;
-        console.log(id, this.slots);
         res = [];
         for (i = l = 0; l <= 6; i = ++l) {
           obj = this.slots[i][id];
@@ -164,7 +177,7 @@
             console.log(obj);
             res.push(td({
               colspan: obj.colspan
-            }, this.render_label(obj.event)));
+            }, this.render_label(obj.event, !overlap_day(this.year, this.month, obj.start - 1, obj.event.start, obj.event.end), !overlap_day(this.year, this.month, obj.end + 1, obj.event.start, obj.event.end))));
           }
         }
         return tr('.mns-cal-row', res);
