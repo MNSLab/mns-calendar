@@ -38,7 +38,11 @@
   bind = (obj, name) ->
     () ->  obj[name]()
 
-
+  # check if [from..to] overlaps day (y,m,d)
+  overlap_day = (y,m,d, from, to ) ->
+    start = new Date(y,m,d)
+    end = new Date(y,m,d+1)
+    return !(to < start || from >= end)
 
 
   class Row
@@ -47,8 +51,36 @@
       @month = month
       @start = start
       @end  = end
+      # generate empty slots
+      @slot_count = slots
+      @slots = ((true for j in [0..slots-1]) for i in [start..end-1])
+
 
     add: (event) ->
+      [start, end] = [null, null]
+      for i in [@start..@end-1]
+        if overlap_day(@year, @month, i, event.start, event.end)
+          start ?= i-@start
+          end = i-@start
+
+      if start is null
+        return false
+
+      for i in [0..@slot_count-1]
+        ok = true
+        for j in [start..end]
+          if @slots[j][i] isnt true
+            ok = false
+            break
+        console.log ok, start, i
+        if ok is true
+          @slots[start][i] = {event: event, colspan: end-start+1}
+          for j in [start+1..end] by 1
+            @slots[j][i] = false
+          return true
+
+      return false
+
 
     render_header: () ->
       res = []
@@ -58,16 +90,35 @@
       tr('.mns-cal-row-header', res )
 
     render_bg: () ->
+      table('.table.table-bordered',
+        tr({},
+          for i in [@start..@end-1]
+            is_active = (new Date(@year, @month, i)).getMonth() is @month
+            td( (if is_active then {} else '.active') )
+        ) )
 
+    render_slot: (id) ->
+      console.log(id, @slots)
+      res = []
+      for i in [0..6]
+        obj = @slots[i][id]
+        type = typeof(obj)
+        console.log(obj, type)
+        if obj is true
+          res.push td({},'')
+        else if type is 'object'
+          console.log obj
+          res.push td({colspan: obj.colspan}, span('.label.label-primary', obj.event.title) )
+      tr('.mns-cal-row', res)
 
     # return html representing given row
     render: () ->
-      bg = @render_bg()
       html = [@render_header()]
-      for i in [1..4]
-        html.push tr('.mns-cal-row', td({colspan: 7}))
+      for i in [0..@slot_count-1]
+        html.push(@render_slot(i))
+        #html.push tr('.mns-cal-row', td({colspan: 1}, span('.label.label-primary', 'Lorem ipsum dolores sit amet')), td({colspan:6}))
 
-      div('.mns-cal-week', bg, div('.mns-cal-rows', html) )
+      div('.mns-cal-week', div('.mns-cal-bg', @render_bg() ), div('.mns-cal-rows', table('.table.table-condensed', html ) ) )
 
 
   # Define the plugin class
@@ -94,19 +145,21 @@
       @$el.append @setup_skeleton()
       @title = @options['title']
       @date = @options['date']
-      @month = 11
+      @month = 4
       @year = 2016
       @start_of_week = 1
+      @max_slots = 4
       @events = [{
         title: 'Happy Birthday',
-        start: '2016-02-01',
-        end: '2016-02-03',
+        start: new Date('2016-04-01'),
+        end: new Date('2016-05-03'),
         icon: 'birthday-cake',
         class: 'text-warning'
-      }]
+      }, {title: 'Test', start: new Date('2016-05-02'), end: new Date('2016-05-15')}]
       @t = @options['i18n']['translations']
 
       @render()
+      # bind callbacks
       @$el.find('.mns-cal-prev').click(bind(@, 'prev_month'))
       @$el.find('.mns-cal-next').click(bind(@, 'next_month'))
       @$el.find('.mns-cal-today').click(bind(@, 'today_month'))

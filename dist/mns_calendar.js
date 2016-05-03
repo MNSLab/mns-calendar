@@ -3,9 +3,9 @@
   var slice = [].slice;
 
   (function($, window) {
-    var MnsCalendar, Row, bind, fn, j, len, ref, tag_name;
+    var MnsCalendar, Row, bind, fn, k, len, overlap_day, ref, tag_name;
     window.tag = function() {
-      var attrs, child, id, j, klass, len, name, obj, params, sc;
+      var attrs, child, id, k, klass, len, name, obj, params, sc;
       name = arguments[0], params = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       obj = $("<" + name + ">");
       if (typeof params[0] === 'string') {
@@ -21,8 +21,8 @@
         attrs = params.shift();
         obj.attr(attrs);
       }
-      for (j = 0, len = params.length; j < len; j++) {
-        child = params[j];
+      for (k = 0, len = params.length; k < len; k++) {
+        child = params[k];
         if (typeof child === 'string') {
           obj.append(document.createTextNode(child));
         } else {
@@ -39,8 +39,8 @@
         return tag.apply(null, [s].concat(slice.call(params)));
       };
     };
-    for (j = 0, len = ref.length; j < len; j++) {
-      tag_name = ref[j];
+    for (k = 0, len = ref.length; k < len; k++) {
+      tag_name = ref[k];
       fn(tag_name);
     }
     window['nbsp'] = document.createTextNode(String.fromCharCode(160));
@@ -49,37 +49,123 @@
         return obj[name]();
       };
     };
+    overlap_day = function(y, m, d, from, to) {
+      var end, start;
+      start = new Date(y, m, d);
+      end = new Date(y, m, d + 1);
+      return !(to < start || from >= end);
+    };
     Row = (function() {
       function Row(year, month, start, end, slots) {
+        var i, j;
         this.year = year;
         this.month = month;
         this.start = start;
         this.end = end;
+        this.slot_count = slots;
+        this.slots = (function() {
+          var l, ref1, ref2, results;
+          results = [];
+          for (i = l = ref1 = start, ref2 = end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
+            results.push((function() {
+              var n, ref3, results1;
+              results1 = [];
+              for (j = n = 0, ref3 = slots - 1; 0 <= ref3 ? n <= ref3 : n >= ref3; j = 0 <= ref3 ? ++n : --n) {
+                results1.push(true);
+              }
+              return results1;
+            })());
+          }
+          return results;
+        })();
       }
 
-      Row.prototype.add = function(event) {};
+      Row.prototype.add = function(event) {
+        var end, i, j, l, n, o, ok, p, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, start;
+        ref1 = [null, null], start = ref1[0], end = ref1[1];
+        for (i = l = ref2 = this.start, ref3 = this.end - 1; ref2 <= ref3 ? l <= ref3 : l >= ref3; i = ref2 <= ref3 ? ++l : --l) {
+          if (overlap_day(this.year, this.month, i, event.start, event.end)) {
+            if (start == null) {
+              start = i - this.start;
+            }
+            end = i - this.start;
+          }
+        }
+        if (start === null) {
+          return false;
+        }
+        for (i = n = 0, ref4 = this.slot_count - 1; 0 <= ref4 ? n <= ref4 : n >= ref4; i = 0 <= ref4 ? ++n : --n) {
+          ok = true;
+          for (j = o = ref5 = start, ref6 = end; ref5 <= ref6 ? o <= ref6 : o >= ref6; j = ref5 <= ref6 ? ++o : --o) {
+            if (this.slots[j][i] !== true) {
+              ok = false;
+              break;
+            }
+          }
+          console.log(ok, start, i);
+          if (ok === true) {
+            this.slots[start][i] = {
+              event: event,
+              colspan: end - start + 1
+            };
+            for (j = p = ref7 = start + 1, ref8 = end; p <= ref8; j = p += 1) {
+              this.slots[j][i] = false;
+            }
+            return true;
+          }
+        }
+        return false;
+      };
 
       Row.prototype.render_header = function() {
-        var i, k, ref1, ref2, res;
+        var i, l, ref1, ref2, res;
         res = [];
-        for (i = k = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
+        for (i = l = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
           res.push(th({}, (new Date(this.year, this.month, i)).getDate()));
         }
         return tr('.mns-cal-row-header', res);
       };
 
-      Row.prototype.render_bg = function() {};
+      Row.prototype.render_bg = function() {
+        var i, is_active;
+        return table('.table.table-bordered', tr({}, (function() {
+          var l, ref1, ref2, results;
+          results = [];
+          for (i = l = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
+            is_active = (new Date(this.year, this.month, i)).getMonth() === this.month;
+            results.push(td((is_active ? {} : '.active')));
+          }
+          return results;
+        }).call(this)));
+      };
+
+      Row.prototype.render_slot = function(id) {
+        var i, l, obj, res, type;
+        console.log(id, this.slots);
+        res = [];
+        for (i = l = 0; l <= 6; i = ++l) {
+          obj = this.slots[i][id];
+          type = typeof obj;
+          console.log(obj, type);
+          if (obj === true) {
+            res.push(td({}, ''));
+          } else if (type === 'object') {
+            console.log(obj);
+            res.push(td({
+              colspan: obj.colspan
+            }, span('.label.label-primary', obj.event.title)));
+          }
+        }
+        return tr('.mns-cal-row', res);
+      };
 
       Row.prototype.render = function() {
-        var bg, html, i, k;
-        bg = this.render_bg();
+        var html, i, l, ref1;
         html = [this.render_header()];
-        for (i = k = 1; k <= 4; i = ++k) {
-          html.push(tr('.mns-cal-row', td({
-            colspan: 7
-          })));
+        for (i = l = 0, ref1 = this.slot_count - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; i = 0 <= ref1 ? ++l : --l) {
+          html.push(this.render_slot(i));
         }
-        return div('.mns-cal-week', bg, div('.mns-cal-rows', html));
+        return div('.mns-cal-week', div('.mns-cal-bg', this.render_bg()), div('.mns-cal-rows', table('.table.table-condensed', html)));
       };
 
       return Row;
@@ -111,16 +197,21 @@
         this.$el.append(this.setup_skeleton());
         this.title = this.options['title'];
         this.date = this.options['date'];
-        this.month = 11;
+        this.month = 4;
         this.year = 2016;
         this.start_of_week = 1;
+        this.max_slots = 4;
         this.events = [
           {
             title: 'Happy Birthday',
-            start: '2016-02-01',
-            end: '2016-02-03',
+            start: new Date('2016-04-01'),
+            end: new Date('2016-05-03'),
             icon: 'birthday-cake',
             "class": 'text-warning'
+          }, {
+            title: 'Test',
+            start: new Date('2016-05-02'),
+            end: new Date('2016-05-15')
           }
         ];
         this.t = this.options['i18n']['translations'];
@@ -162,7 +253,7 @@
       MnsCalendar.prototype.load_data = function() {};
 
       MnsCalendar.prototype.render = function() {
-        var body, day, dow, event, k, l, len1, len2, len3, n, ref1, results, row, rows, start;
+        var body, day, dow, event, l, len1, len2, len3, n, o, ref1, results, row, rows, start;
         console.log(this, 'Rendering');
         dow = function(y, m, d) {
           return (new Date(y, m, d)).getDay();
@@ -182,18 +273,18 @@
           day += 7;
         }
         ref1 = this.events;
-        for (k = 0, len1 = ref1.length; k < len1; k++) {
-          event = ref1[k];
-          for (l = 0, len2 = rows.length; l < len2; l++) {
-            row = rows[l];
+        for (l = 0, len1 = ref1.length; l < len1; l++) {
+          event = ref1[l];
+          for (n = 0, len2 = rows.length; n < len2; n++) {
+            row = rows[n];
             row.add(event);
           }
         }
         body = this.$el.find('.mns-cal-body');
         body.empty();
         results = [];
-        for (n = 0, len3 = rows.length; n < len3; n++) {
-          row = rows[n];
+        for (o = 0, len3 = rows.length; o < len3; o++) {
+          row = rows[o];
           results.push(body.append(row.render()));
         }
         return results;

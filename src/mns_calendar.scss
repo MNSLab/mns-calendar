@@ -1,0 +1,70 @@
+.mns-cal {
+	& > .navbar {
+		border-bottom: 0;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+		margin-bottom: 0;
+	}
+	& > .panel {
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
+
+	& table label {
+		display: block;
+		text-align: left;
+	}
+
+	.mns-cal-week {
+		position: relative;
+	}
+
+	.mns-cal-body {
+
+		table {
+			width: 100%;
+			table-layout: fixed;
+			margin: 0;
+			td {
+				border-top-width:0;
+				border-bottom-width:0;
+				padding:0px;
+				height:1em;
+
+				&:first-child {
+					border-left-width: 0;
+				}
+				&:last-child {
+					border-right-width: 0;
+				}
+			}
+		}
+	}
+
+	.mns-cal-bg {
+		position: absolute;
+		z-index:0;
+		height: 100%;
+		width: 100%;
+		table {
+			height: 100%;
+		}
+	}
+
+	.mns-cal-rows{
+		position: relative;
+		z-index: 1;
+		th {
+			text-align: right;
+			font-weight: normal;
+			padding: 2px;
+		}
+		span.label {
+			display:block;
+			text-align:left;
+			margin:1px 4px;
+			text-overflow: ellipsis;
+			overflow:hidden;
+		}
+	}
+}

@@ -1,0 +1,72 @@
+/* line 2, ../src/mns_calendar.scss */
+.mns-cal > .navbar {
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-bottom: 0;
+}
+/* line 8, ../src/mns_calendar.scss */
+.mns-cal > .panel {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+/* line 13, ../src/mns_calendar.scss */
+.mns-cal table label {
+  display: block;
+  text-align: left;
+}
+/* line 18, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-week {
+  position: relative;
+}
+/* line 24, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body table {
+  width: 100%;
+  table-layout: fixed;
+  margin: 0;
+}
+/* line 28, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body table td {
+  border-top-width: 0;
+  border-bottom-width: 0;
+  padding: 0px;
+  height: 1em;
+}
+/* line 34, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body table td:first-child {
+  border-left-width: 0;
+}
+/* line 37, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body table td:last-child {
+  border-right-width: 0;
+}
+/* line 44, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-bg {
+  position: absolute;
+  z-index: 0;
+  height: 100%;
+  width: 100%;
+}
+/* line 49, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-bg table {
+  height: 100%;
+}
+/* line 54, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-rows {
+  position: relative;
+  z-index: 1;
+}
+/* line 57, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-rows th {
+  text-align: right;
+  font-weight: normal;
+  padding: 2px;
+}
+/* line 62, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-rows span.label {
+  display: block;
+  text-align: left;
+  margin: 1px 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
