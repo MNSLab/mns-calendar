@@ -59,7 +59,7 @@
       return !(to < start || from >= end);
     };
     Row = (function() {
-      function Row(year, month, start, end, slots) {
+      function Row(year, month, start, end, slots, callback) {
         var i, j;
         this.year = year;
         this.month = month;
@@ -81,6 +81,7 @@
           }
           return results;
         })();
+        this.callback = callback;
       }
 
       Row.prototype.add = function(event) {
@@ -145,7 +146,7 @@
       };
 
       Row.prototype.render_label = function(event, at_start, at_end) {
-        var klass, res;
+        var callback, klass, res;
         res = [];
         if (event.icon) {
           res.push(i(".fa.fa-" + event.icon));
@@ -159,9 +160,12 @@
         if (at_end) {
           klass.push('mns-cal-ends-here');
         }
+        callback = this.callback;
         return span({
           "class": klass
-        }, res);
+        }, res).click(function() {
+          return callback(this, event);
+        });
       };
 
       Row.prototype.render_slot = function(id) {
@@ -203,6 +207,9 @@
       MnsCalendar.prototype.defaults = {
         title: 'MNS Calendar',
         date: [(new Date()).getMonth(), (new Date()).getFullYear()],
+        click: function(link, event) {
+          return console.log(link, event);
+        },
         i18n: {
           lang: 'pl',
           translations: {
@@ -219,8 +226,6 @@
         this.options = $.extend({}, this.defaults, options);
         this.$el = $(el);
         this.$el.append(this.setup_skeleton());
-        this.title = this.options['title'];
-        this.date = this.options['date'];
         this.month = 4;
         this.year = 2016;
         this.start_of_week = 1;
@@ -293,7 +298,7 @@
           if (day > 0 && (start.getDay() === this.start_of_week) && (start.getMonth() !== this.month)) {
             break;
           }
-          rows.push(new Row(this.year, this.month, day, day + 7, this.max_slots));
+          rows.push(new Row(this.year, this.month, day, day + 7, this.max_slots, this.options['click']));
           day += 7;
         }
         ref1 = this.events;
@@ -317,7 +322,7 @@
       MnsCalendar.prototype.update = function() {};
 
       MnsCalendar.prototype.update_header = function() {
-        this.$el.find('.mns-cal-title').text(this.title);
+        this.$el.find('.mns-cal-title').text(this.options['title']);
         return this.$el.find('.mns-cal-date').text(this.t.months[this.month] + " " + this.year);
       };
 

@@ -6,6 +6,7 @@
     <link href='bower_components/bootswatch/cosmo/bootstrap.min.css' rel='stylesheet'>
     <link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet'>
     <script src='bower_components/jquery/dist/jquery.min.js'></script>
+    <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
     <link href='dist/mns_calendar.css' rel='stylesheet'>
     <script src='dist/mns_calendar.js'></script>
   </head>
@@ -50,7 +51,7 @@
           </div>
           <hr>
           <h3>Usage</h3>
-          <pre>$('#calendar').mnsCalenda({
+          <pre>$('#calendar').mnsCalendar({
             title: 'My Calendar',
             events: [
               {
@@ -71,153 +72,19 @@
           (function() {
             $(function() {
               return $('#calendar').MnsCalendar({
-                title: 'MNS Calendar'
+                title: 'MNS Calendar',
+                click: function(label, event) {
+                  return $(label).popover({
+                    title: event.title,
+                    placement: 'bottom',
+                    content: 'Od: ' + event.from + ' do: ' + event.to
+                  }).popover('show');
+                }
               });
             });
           
           }).call(this);
         </script>
-        <!--
-          <div class='mns-cal'>
-            <nav class='navbar navbar-default'>
-              <div class='container-fluid'>
-                <div class='navbar-header'>
-                  <div class='navbar-brand'>
-                    <i class='fa fa-calendar'></i>
-                    <span class='mns-cal-title'>MNS Calendar</span>
-                  </div>
-                  <div class='navbar-text mns-cal-date'>Maj 2016</div>
-                </div>
-                <div class='navbar-form navbar-right'>
-                  <div class='btn-toolbar'>
-                    <div class='btn-group'>
-                      <a class='btn btn-default'>Today</a>
-                    </div>
-                    <div class='btn-group'>
-                      <a class='btn btn-default'>
-                        <i class='fa fa-angle-left'></i>
-                      </a>
-                      <a class='btn btn-default'>
-                        <i class='fa fa-angle-right'></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </nav>
-            <div class='panel panel-default'>
-              <table class='table table-condensed'>
-                <thead>
-                  <tr>
-                    <th>Week</th>
-                    <th>Mon</th>
-                    <th>Thu</th>
-                    <th>Wen</th>
-                    <th>Thur</th>
-                    <th>Fri</th>
-                    <th>Sat</th>
-                    <th>Sun</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th>week #1</th>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                  </tr>
-                  <tr>
-                    <td colspan='2'></td>
-                    <td colspan='3'>
-                      <span class='label label-success'>asd asd asd asd sd sd s</span>
-                    </td>
-                    <td colspan='3'></td>
-                  </tr>
-                </tbody>
-                <tbody>
-                  <tr>
-                    <th>week #2</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                    <th>13</th>
-                    <th>14</th>
-                  </tr>
-                  <tr>
-                    <td colspan='2'></td>
-                    <td colspan='3'>
-                      <span class='label label-success'>asd asd asd asd sd sd s</span>
-                    </td>
-                    <td colspan='3'></td>
-                  </tr>
-                </tbody>
-                <tbody>
-                  <tr>
-                    <th>week #3</th>
-                    <th>15</th>
-                    <th>16</th>
-                    <th>17</th>
-                    <th>18</th>
-                    <th>19</th>
-                    <th>20</th>
-                    <th>21</th>
-                  </tr>
-                  <tr>
-                    <td colspan='2'></td>
-                    <td colspan='3'>
-                      <span class='label label-success'>asd asd asd asd sd sd s</span>
-                    </td>
-                    <td colspan='3'></td>
-                  </tr>
-                </tbody>
-                <tbody>
-                  <tr>
-                    <th>week #4</th>
-                    <th>22</th>
-                    <th>23</th>
-                    <th>24</th>
-                    <th>25</th>
-                    <th>26</th>
-                    <th>27</th>
-                    <th>28</th>
-                  </tr>
-                  <tr>
-                    <td colspan='2'></td>
-                    <td colspan='3'>
-                      <span class='label label-success'>asd asd asd asd sd sd s</span>
-                    </td>
-                    <td colspan='3'></td>
-                  </tr>
-                </tbody>
-                <tbody>
-                  <tr>
-                    <th>week #5</th>
-                    <th>29</th>
-                    <th>30</th>
-                    <th>31</th>
-                    <th>32</th>
-                    <th>33</th>
-                    <th>34</th>
-                    <th>35</th>
-                  </tr>
-                  <tr>
-                    <td colspan='2'></td>
-                    <td colspan='3'>
-                      <span class='label label-success'>asd asd asd asd sd sd s</span>
-                    </td>
-                    <td colspan='3'></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        -->
       </div>
     </div>
   </body>

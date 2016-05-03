@@ -48,7 +48,7 @@
 
 
   class Row
-    constructor: (year, month, start, end, slots) ->
+    constructor: (year, month, start, end, slots, callback) ->
       @year = year
       @month = month
       @start = start
@@ -56,7 +56,7 @@
       # generate empty slots
       @slot_count = slots
       @slots = ((true for j in [0..slots-1]) for i in [start..end-1])
-
+      @callback = callback
 
     add: (event) ->
       [start, end] = [null, null]
@@ -110,8 +110,8 @@
         klass.push 'mns-cal-starts-here'
       if at_end
         klass.push 'mns-cal-ends-here'
-
-      span({class: klass}, res)
+      callback = @callback
+      span({class: klass}, res).click( () -> callback(this, event) )
 
     render_slot: (id) ->
       res = []
@@ -146,7 +146,7 @@
     defaults:
       title: 'MNS Calendar'
       date: [(new Date()).getMonth(), (new Date()).getFullYear()]
-
+      click: (link, event) -> console.log(link, event)
       i18n:
         lang: 'pl'
         translations:
@@ -162,8 +162,6 @@
       @$el = $(el)
 
       @$el.append @setup_skeleton()
-      @title = @options['title']
-      @date = @options['date']
       @month = 4
       @year = 2016
       @start_of_week = 1
@@ -228,7 +226,7 @@
         if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth() isnt @month) # zaczynamy nowy tydzień w przyszłym
           break
 
-        rows.push( new Row(@year, @month, day, day+7, @max_slots) )
+        rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['click'] ) )
         day += 7
 
       for event in @events
@@ -249,7 +247,7 @@
 
     #
     update_header: () ->
-      @$el.find('.mns-cal-title').text(@title)
+      @$el.find('.mns-cal-title').text(@options['title'])
       @$el.find('.mns-cal-date').text("#{@t.months[@month]} #{@year}")
 
     # Create HTML skeleton of calendar

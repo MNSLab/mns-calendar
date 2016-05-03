@@ -6,7 +6,8 @@
 
     %link{rel: 'stylesheet', href: 'bower_components/bootswatch/cosmo/bootstrap.min.css' }
     %link{rel: 'stylesheet', href: 'bower_components/font-awesome/css/font-awesome.min.css'}
-    %script{src: 'bower_components/jquery/dist/jquery.min.js'}
+    %script{ src: 'bower_components/jquery/dist/jquery.min.js' }
+    %script{ src: 'bower_components/bootstrap/dist/js/bootstrap.min.js' }
 
     %link{ rel: 'stylesheet', href: 'dist/mns_calendar.css' }
     %script{ src: 'dist/mns_calendar.js' }
@@ -42,7 +43,7 @@
           %h3 Usage
           %pre
             :plain
-              $('#calendar').mnsCalenda({
+              $('#calendar').mnsCalendar({
                 title: 'My Calendar',
                 events: [
                   {
@@ -63,46 +64,10 @@
           $ ->
             $('#calendar').MnsCalendar(
               title: 'MNS Calendar'
+              click: (label, event) ->
+                $(label).popover
+                  title: event.title
+                  placement: 'bottom'
+                  content: 'Od: '+event.from + ' do: '+event.to
+                .popover 'show'
             );
-        /
-          %div.mns-cal
-            %nav.navbar.navbar-default
-              %div.container-fluid
-                %div.navbar-header
-                  %div.navbar-brand
-                    %i.fa.fa-calendar
-                    %span.mns-cal-title MNS Calendar
-                  %div.navbar-text.mns-cal-date Maj 2016
-                %div.navbar-form.navbar-right
-                  %div.btn-toolbar
-                    %div.btn-group
-                      %a.btn.btn-default Today
-                    %div.btn-group
-                      %a.btn.btn-default
-                        %i.fa.fa-angle-left
-                      %a.btn.btn-default
-                        %i.fa.fa-angle-right
-
-
-            %div.panel.panel-default
-              %table.table.table-condensed
-                %thead
-                  %tr
-                    %th Week
-                    %th Mon
-                    %th Thu
-                    %th Wen
-                    %th Thur
-                    %th Fri
-                    %th Sat
-                    %th Sun
-                - (0..4).each do |w|
-                  %tbody
-                    %tr
-                      - ["week ##{w+1}",7*w+1,7*w+2,7*w+3,7*w+4,7*w+5,7*w+6,7*w+7].each do |d|
-                        %th= d
-                    %tr
-                      %td{colspan: 2}
-                      %td{colspan: 3}
-                        %span.label.label-success asd asd asd asd sd sd s
-                      %td{colspan: 3}
