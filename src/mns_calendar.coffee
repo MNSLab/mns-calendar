@@ -96,6 +96,13 @@
             is_active = (new Date(@year, @month, i)).getMonth() is @month
             td( (if is_active then {} else '.active') )
         ) )
+    render_label: (event) ->
+      res =[]
+      if event.icon
+        res.push i(".fa.fa-#{event.icon}")
+        res.push ' '
+      res.push event.title
+      span('.label.label-primary', res)
 
     render_slot: (id) ->
       console.log(id, @slots)
@@ -108,8 +115,9 @@
           res.push td({},'')
         else if type is 'object'
           console.log obj
-          res.push td({colspan: obj.colspan}, span('.label.label-primary', obj.event.title) )
+          res.push td({colspan: obj.colspan}, @render_label(obj.event) )
       tr('.mns-cal-row', res)
+
 
     # return html representing given row
     render: () ->
@@ -155,7 +163,7 @@
         end: new Date('2016-05-03'),
         icon: 'birthday-cake',
         class: 'text-warning'
-      }, {title: 'Test', start: new Date('2016-05-02'), end: new Date('2016-05-15')}]
+      }, {title: 'Lorem ipsum dolor sit amet enim. Etiam ullamcorper. Suspendisse a pellentesque dui, non felis. Maecenas malesuada elit lectus felis, malesuada ultricies. ', start: new Date('2016-05-02'), end: new Date('2016-05-15')}]
       @t = @options['i18n']['translations']
 
       @render()

@@ -139,6 +139,17 @@
         }).call(this)));
       };
 
+      Row.prototype.render_label = function(event) {
+        var res;
+        res = [];
+        if (event.icon) {
+          res.push(i(".fa.fa-" + event.icon));
+          res.push(' ');
+        }
+        res.push(event.title);
+        return span('.label.label-primary', res);
+      };
+
       Row.prototype.render_slot = function(id) {
         var i, l, obj, res, type;
         console.log(id, this.slots);
@@ -153,7 +164,7 @@
             console.log(obj);
             res.push(td({
               colspan: obj.colspan
-            }, span('.label.label-primary', obj.event.title)));
+            }, this.render_label(obj.event)));
           }
         }
         return tr('.mns-cal-row', res);
@@ -209,7 +220,7 @@
             icon: 'birthday-cake',
             "class": 'text-warning'
           }, {
-            title: 'Test',
+            title: 'Lorem ipsum dolor sit amet enim. Etiam ullamcorper. Suspendisse a pellentesque dui, non felis. Maecenas malesuada elit lectus felis, malesuada ultricies. ',
             start: new Date('2016-05-02'),
             end: new Date('2016-05-15')
           }
