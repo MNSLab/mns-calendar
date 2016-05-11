@@ -13,6 +13,13 @@ class Row
     @callback = callback
     @days_in_month = DateHelper.days_in_month(year, month)
 
+    # check today
+    @today = (new Date())
+    @today = if @today.getMonth()+1 is @month then @today.getDate() else null
+    console.log(@today)
+
+
+
   add: (event) ->
     [start, end] = [null, null]
     for i in [@start..@end-1]
@@ -63,8 +70,10 @@ class Row
     table('.table.table-bordered',
       tr({},
         for i in [@start..@end-1]
-          is_active = (0 < i <= @days_in_month)#((DateHelper.day(@year, @month, i)).getMonth()+1) is @month
-          td( (if is_active then {} else '.active') )
+          klass = {}
+          klass = '.active' unless (0 < i <= @days_in_month)
+          klass = '.mns-cal-today.info' if i is @today
+          td(klass)
       ) )
 
   render_label: (event, at_start, at_end) ->

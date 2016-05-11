@@ -51,18 +51,22 @@
 .mns-cal .mns-cal-bg table {
   height: 100%;
 }
-/* line 54, ../src/mns_calendar.scss */
+/* line 53, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-today {
+  opacity: 0.3;
+}
+/* line 57, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows {
   position: relative;
   z-index: 1;
 }
-/* line 57, ../src/mns_calendar.scss */
+/* line 60, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows th {
   text-align: right;
   font-weight: normal;
   padding: 2px;
 }
-/* line 62, ../src/mns_calendar.scss */
+/* line 65, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows span.label {
   display: block;
   text-align: left;
@@ -71,25 +75,25 @@
   overflow: hidden;
   cursor: pointer;
 }
-/* line 69, ../src/mns_calendar.scss */
+/* line 72, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows span.label:hover {
   opacity: 0.8;
 }
-/* line 72, ../src/mns_calendar.scss */
+/* line 75, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows span.label:not(.mns-cal-starts-here) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-/* line 76, ../src/mns_calendar.scss */
+/* line 79, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows span.label:not(.mns-cal-ends-here) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-/* line 80, ../src/mns_calendar.scss */
+/* line 83, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows span.label.mns-cal-starts-here {
   margin-left: 6px;
 }
-/* line 81, ../src/mns_calendar.scss */
+/* line 84, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows span.label.mns-cal-ends-here {
   margin-right: 6px;
 }

@@ -122,6 +122,9 @@
       })();
       this.callback = callback;
       this.days_in_month = DateHelper.days_in_month(year, month);
+      this.today = new Date();
+      this.today = this.today.getMonth() + 1 === this.month ? this.today.getDate() : null;
+      console.log(this.today);
     }
 
     Row.prototype.add = function(event) {
@@ -181,13 +184,19 @@
     };
 
     Row.prototype.render_bg = function() {
-      var i, is_active;
+      var i, klass;
       return table('.table.table-bordered', tr({}, (function() {
         var l, ref1, ref2, results;
         results = [];
         for (i = l = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
-          is_active = (0 < i && i <= this.days_in_month);
-          results.push(td((is_active ? {} : '.active')));
+          klass = {};
+          if (!((0 < i && i <= this.days_in_month))) {
+            klass = '.active';
+          }
+          if (i === this.today) {
+            klass = '.mns-cal-today.info';
+          }
+          results.push(td(klass));
         }
         return results;
       }).call(this)));
