@@ -46,6 +46,12 @@
                 <li>
                   <a href='http://compass-style.org/'>SASS</a>
                 </li>
+                <li>
+                  <A href='http://bower.io/'>Bower</A>
+                </li>
+                <li>
+                  <a href='https://github.com/fairfieldt/coffeescript-concat'>coffeescript-concat</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -60,7 +66,9 @@
                 start: '01-01-2016',
                 end: '01-01-2016',
                 class: 'text-success',
-                icon: 'birthday-cake'
+                icon: 'birthday-cake',
+                background_class: 'text-warning',
+                color_class: 'text-success'
               }
             ]
           })</pre>
@@ -73,11 +81,20 @@
             $(function() {
               return $('#calendar').MnsCalendar({
                 title: 'MNS Calendar',
+                events: [
+                  {
+                    name: 'Birthday',
+                    start: '2016/05/11',
+                    end: '2016/05/11',
+                    icon: 'birthday'
+                  }
+                ],
                 click: function(label, event) {
                   return $(label).popover({
                     title: event.title,
                     placement: 'bottom',
-                    content: 'Od: ' + event.from + ' do: ' + event.to
+                    content: 'Od: ' + event.from + ' do: ' + event.to,
+                    trigger: 'focus'
                   }).popover('show');
                 }
               });

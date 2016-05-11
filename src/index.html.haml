@@ -39,6 +39,10 @@
                   %a{href: 'http://coffeescript.org'} coffeescript
                 %li
                   %a{href: 'http://compass-style.org/'} SASS
+                %li
+                  %A{href: 'http://bower.io/'} Bower
+                %li
+                  %a{href: 'https://github.com/fairfieldt/coffeescript-concat'} coffeescript-concat
           %hr
           %h3 Usage
           %pre
@@ -52,7 +56,9 @@
                     start: '01-01-2016',
                     end: '01-01-2016',
                     class: 'text-success',
-                    icon: 'birthday-cake'
+                    icon: 'birthday-cake',
+                    background_class: 'text-warning',
+                    color_class: 'text-success'
                   }
                 ]
               })
@@ -63,11 +69,21 @@
         :coffee
           $ ->
             $('#calendar').MnsCalendar(
-              title: 'MNS Calendar'
+              title: 'MNS Calendar',
+              events: [
+                {
+                  name: 'Birthday',
+                  start: '2016/05/11',
+                  end: '2016/05/11'
+                  icon: 'birthday'
+                }
+              ]
+
               click: (label, event) ->
                 $(label).popover
                   title: event.title
                   placement: 'bottom'
                   content: 'Od: '+event.from + ' do: '+event.to
+                  trigger: 'focus'
                 .popover 'show'
             );
