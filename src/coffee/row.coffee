@@ -2,6 +2,7 @@
 
 class Row
   constructor: (year, month, start, end, slots, callback) ->
+    console.log('Kalendarz: ', year, month)
     @year = year
     @month = month
     @start = start
@@ -10,6 +11,7 @@ class Row
     @slot_count = slots
     @slots = ((true for j in [0..slots-1]) for i in [start..end-1])
     @callback = callback
+    @days_in_month = DateHelper.days_in_month(year, month)
 
   add: (event) ->
     [start, end] = [null, null]
@@ -22,12 +24,19 @@ class Row
       return false
 
     free_slot = @find_free_slot(start, end)
-    console.log(free_slot)
+
     if free_slot isnt false
-      @slots[start][free_slot] = { event: event, colspan: end-start+1, start: start+@start, end: end+@start }
+      @slots[start][free_slot] = {
+        event: event,
+        colspan: end-start+1,
+        start: start+@start,
+        end: end+@start
+      }
+
       for j in [start+1..end] by 1
         @slots[j][free_slot] = false
       return true
+
     return false
 
   find_free_slot: (start, end) ->
@@ -46,7 +55,7 @@ class Row
   render_header: () ->
     res = []
     for i in [@start..@end-1]
-      res.push(th({}, (new Date(@year, @month, i)).getDate()))
+      res.push(th({}, (DateHelper.day(@year, @month, i)).getDate()))
 
     tr('.mns-cal-row-header', res )
 
@@ -54,7 +63,7 @@ class Row
     table('.table.table-bordered',
       tr({},
         for i in [@start..@end-1]
-          is_active = (new Date(@year, @month, i)).getMonth() is @month
+          is_active = (0 < i <= @days_in_month)#((DateHelper.day(@year, @month, i)).getMonth()+1) is @month
           td( (if is_active then {} else '.active') )
       ) )
 
@@ -81,7 +90,7 @@ class Row
       if obj is true
         res.push td({},'')
       else if type is 'object'
-        console.log(obj)
+
         res.push td({colspan: obj.colspan}, @render_label(
           obj.event,
           !obj.event.overlap_day(DateHelper.day(@year, @month, obj.start-1)),

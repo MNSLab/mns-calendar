@@ -15,6 +15,12 @@ class DateHelper
     start = DateHelper.begining_of_day(day)
     end = DateHelper.end_of_day(day)
     not (range_to < start or range_from > end)
-    
+
   @day: (year, month, day) ->
     new Date(year, month-1, day)
+
+  @days_in_month: (year, month) ->
+    (new Date(year, month, 0)).getDate()
+
+  @day_of_week: (year, month, day) ->
+    (new Date(year, month-1, day)).getDay()

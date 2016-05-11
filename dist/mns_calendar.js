@@ -84,6 +84,14 @@
       return new Date(year, month - 1, day);
     };
 
+    DateHelper.days_in_month = function(year, month) {
+      return (new Date(year, month, 0)).getDate();
+    };
+
+    DateHelper.day_of_week = function(year, month, day) {
+      return (new Date(year, month - 1, day)).getDay();
+    };
+
     return DateHelper;
 
   })();
@@ -91,6 +99,7 @@
   Row = (function() {
     function Row(year, month, start, end, slots, callback) {
       var i, j;
+      console.log('Kalendarz: ', year, month);
       this.year = year;
       this.month = month;
       this.start = start;
@@ -101,9 +110,9 @@
         results = [];
         for (i = l = ref1 = start, ref2 = end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
           results.push((function() {
-            var n, ref3, results1;
+            var m, ref3, results1;
             results1 = [];
-            for (j = n = 0, ref3 = slots - 1; 0 <= ref3 ? n <= ref3 : n >= ref3; j = 0 <= ref3 ? ++n : --n) {
+            for (j = m = 0, ref3 = slots - 1; 0 <= ref3 ? m <= ref3 : m >= ref3; j = 0 <= ref3 ? ++m : --m) {
               results1.push(true);
             }
             return results1;
@@ -112,10 +121,11 @@
         return results;
       })();
       this.callback = callback;
+      this.days_in_month = DateHelper.days_in_month(year, month);
     }
 
     Row.prototype.add = function(event) {
-      var end, free_slot, i, j, l, n, ref1, ref2, ref3, ref4, ref5, start;
+      var end, free_slot, i, j, l, m, ref1, ref2, ref3, ref4, ref5, start;
       ref1 = [null, null], start = ref1[0], end = ref1[1];
       for (i = l = ref2 = this.start, ref3 = this.end - 1; ref2 <= ref3 ? l <= ref3 : l >= ref3; i = ref2 <= ref3 ? ++l : --l) {
         if (event.overlap_day(DateHelper.day(this.year, this.month, i))) {
@@ -129,7 +139,6 @@
         return false;
       }
       free_slot = this.find_free_slot(start, end);
-      console.log(free_slot);
       if (free_slot !== false) {
         this.slots[start][free_slot] = {
           event: event,
@@ -137,7 +146,7 @@
           start: start + this.start,
           end: end + this.start
         };
-        for (j = n = ref4 = start + 1, ref5 = end; n <= ref5; j = n += 1) {
+        for (j = m = ref4 = start + 1, ref5 = end; m <= ref5; j = m += 1) {
           this.slots[j][free_slot] = false;
         }
         return true;
@@ -146,10 +155,10 @@
     };
 
     Row.prototype.find_free_slot = function(start, end) {
-      var l, n, ok, pos, ref1, ref2, ref3, slot;
+      var l, m, ok, pos, ref1, ref2, ref3, slot;
       for (slot = l = 0, ref1 = this.slot_count - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; slot = 0 <= ref1 ? ++l : --l) {
         ok = true;
-        for (pos = n = ref2 = start, ref3 = end; ref2 <= ref3 ? n <= ref3 : n >= ref3; pos = ref2 <= ref3 ? ++n : --n) {
+        for (pos = m = ref2 = start, ref3 = end; ref2 <= ref3 ? m <= ref3 : m >= ref3; pos = ref2 <= ref3 ? ++m : --m) {
           if (this.slots[pos][slot] !== true) {
             ok = false;
             break;
@@ -166,7 +175,7 @@
       var i, l, ref1, ref2, res;
       res = [];
       for (i = l = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
-        res.push(th({}, (new Date(this.year, this.month, i)).getDate()));
+        res.push(th({}, (DateHelper.day(this.year, this.month, i)).getDate()));
       }
       return tr('.mns-cal-row-header', res);
     };
@@ -177,7 +186,7 @@
         var l, ref1, ref2, results;
         results = [];
         for (i = l = ref1 = this.start, ref2 = this.end - 1; ref1 <= ref2 ? l <= ref2 : l >= ref2; i = ref1 <= ref2 ? ++l : --l) {
-          is_active = (new Date(this.year, this.month, i)).getMonth() === this.month;
+          is_active = (0 < i && i <= this.days_in_month);
           results.push(td((is_active ? {} : '.active')));
         }
         return results;
@@ -216,7 +225,6 @@
         if (obj === true) {
           res.push(td({}, ''));
         } else if (type === 'object') {
-          console.log(obj);
           res.push(td({
             colspan: obj.colspan
           }, this.render_label(obj.event, !obj.event.overlap_day(DateHelper.day(this.year, this.month, obj.start - 1)), !obj.event.overlap_day(DateHelper.day(this.year, this.month, obj.end + 1)))));
@@ -291,7 +299,6 @@
 
     Calendar.prototype.defaults = {
       title: 'MNS Calendar',
-      date: [(new Date()).getMonth(), (new Date()).getFullYear()],
       click: function(link, event) {
         return console.log(link, event);
       },
@@ -313,23 +320,23 @@
       this.prev_month = bind(this.prev_month, this);
       this.options = $.extend({}, this.defaults, options);
       this.$el = $(el);
-      this.setup_skeleton();
-      this.month = 4;
+      this.month = 5;
       this.year = 2016;
       this.start_of_week = 1;
       this.max_slots = 4;
       this.load_events();
       this.t = this.options['i18n']['translations'];
+      this.setup_skeleton();
       this.render();
     }
 
     Calendar.prototype.change_month = function(diff) {
       this.month += diff;
-      while (this.month < 0) {
+      while (this.month < 1) {
         this.month += 12;
         this.year -= 1;
       }
-      while (this.month > 11) {
+      while (this.month > 12) {
         this.month -= 12;
         this.year += 1;
       }
@@ -347,7 +354,7 @@
     Calendar.prototype.today_month = function() {
       var now;
       now = new Date();
-      this.month = now.getMonth();
+      this.month = now.getMonth() + 1;
       this.year = now.getFullYear();
       return this.render();
     };
@@ -371,19 +378,19 @@
     };
 
     Calendar.prototype.render = function() {
-      var body, day, dow, event, l, len1, len2, len3, n, o, ref1, results, row, rows, start;
-      dow = function(y, m, d) {
-        return (new Date(y, m, d)).getDay();
-      };
+      var body, day, event, l, len1, len2, len3, m, n, ref1, results, row, rows, start;
+      if (this.start_of_week == null) {
+        this.start_of_week = 0;
+      }
       this.update_header();
       rows = [];
       day = 1;
-      while (dow(this.year, this.month, day) !== this.start_of_week) {
+      while (DateHelper.day_of_week(this.year, this.month, day) !== this.start_of_week) {
         day--;
       }
       while (true) {
-        start = new Date(this.year, this.month, day);
-        if (day > 0 && (start.getDay() === this.start_of_week) && (start.getMonth() !== this.month)) {
+        start = DateHelper.day(this.year, this.month, day);
+        if (day > 0 && (start.getDay() === this.start_of_week) && (start.getMonth() + 1 !== this.month)) {
           break;
         }
         rows.push(new Row(this.year, this.month, day, day + 7, this.max_slots, this.options['click']));
@@ -392,16 +399,16 @@
       ref1 = this.events;
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         event = ref1[l];
-        for (n = 0, len2 = rows.length; n < len2; n++) {
-          row = rows[n];
+        for (m = 0, len2 = rows.length; m < len2; m++) {
+          row = rows[m];
           row.add(event);
         }
       }
       body = this.$el.find('.mns-cal-body');
       body.empty();
       results = [];
-      for (o = 0, len3 = rows.length; o < len3; o++) {
-        row = rows[o];
+      for (n = 0, len3 = rows.length; n < len3; n++) {
+        row = rows[n];
         results.push(body.append(row.render()));
       }
       return results;
@@ -411,23 +418,20 @@
 
     Calendar.prototype.update_header = function() {
       this.$el.find('.mns-cal-title').text(this.options['title']);
-      return this.$el.find('.mns-cal-date').text(this.t.months[this.month] + " " + this.year);
+      return this.$el.find('.mns-cal-date').text(this.t.months[this.month - 1] + " " + this.year);
     };
 
     Calendar.prototype.setup_skeleton = function() {
-      var body, form, header, navbar, skeleton, t;
-      t = {
-        'today': 'dzisiaj'
-      };
+      var body, cal, form, header, navbar;
       header = div('.navbar-header', div('.navbar-brand', i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')), div('.navbar-text.mns-cal-date'));
-      form = div('.navbar-form.navbar-right', div('.btn-toolbar', div('.btn-group', a('.btn.btn-default.mns-cal-today', t['today'])), div('.btn-group', a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')), a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right')))));
+      form = div('.navbar-form.navbar-right', div('.btn-toolbar', div('.btn-group', a('.btn.btn-default.mns-cal-today', this.t['today'])), div('.btn-group', a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')), a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right')))));
       navbar = nav('.navbar.navbar-default', div('.container-fluid', header, form));
       body = div('.panel.panel-default.mns-cal-body');
-      skeleton = div('.mns-cal', navbar, body);
-      skeleton.find('.mns-cal-prev').click(this.prev_month);
-      skeleton.find('.mns-cal-next').click(this.next_month);
-      skeleton.find('.mns-cal-today').click(this.today_month);
-      return this.$el.append(skeleton);
+      cal = div('.mns-cal', navbar, body);
+      cal.find('.mns-cal-prev').click(this.prev_month);
+      cal.find('.mns-cal-next').click(this.next_month);
+      cal.find('.mns-cal-today').click(this.today_month);
+      return this.$el.append(cal);
     };
 
     return Calendar;

@@ -5,7 +5,6 @@ class Calendar
   prefix = 'mns-cal'
   defaults:
     title: 'MNS Calendar'
-    date: [(new Date()).getMonth(), (new Date()).getFullYear()]
     click: (link, event) -> console.log(link, event)
     i18n:
       lang: 'pl'
@@ -20,28 +19,27 @@ class Calendar
   constructor: (el, options) ->
     @options = $.extend({}, @defaults, options)
     @$el = $(el)
-    @setup_skeleton()
 
-    @month = 4
+
+    @month = 5
     @year = 2016
     @start_of_week = 1
     @max_slots = 4
 
     @load_events() #load events data from config
     @t = @options['i18n']['translations'] # setup translations
-
-
+    @setup_skeleton()
     @render()
 
   # Time manipulation routines:
   change_month: (diff) ->
     @month += diff
 
-    while(@month < 0)
+    while(@month < 1)
       @month += 12
       @year -= 1
 
-    while(@month > 11)
+    while(@month > 12)
       @month -= 12
       @year += 1
     @render()
@@ -54,7 +52,7 @@ class Calendar
 
   today_month: () =>
     now = new Date()
-    @month = now.getMonth()
+    @month = now.getMonth()+1
     @year = now.getFullYear()
     @render()
 
@@ -70,18 +68,20 @@ class Calendar
 
   # update skeleton
   render: () ->
-    dow = (y,m,d) -> (new Date(y,m, d)).getDay()
+    @start_of_week ?= 0
+
     @update_header()
     rows = []
     day = 1
 
-    while(dow(@year, @month, day) isnt @start_of_week)
+    # TODO: optimize
+    while(DateHelper.day_of_week(@year, @month, day) isnt @start_of_week)
       day--; # szukamy początku tygodnia
 
     while(true)
-      start = new Date(@year, @month, day)
+      start = DateHelper.day(@year, @month, day)
 
-      if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth() isnt @month) # zaczynamy nowy tydzień w przyszłym
+      if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth()+1 isnt @month) # zaczynamy nowy tydzień w przyszłym
         break
 
       rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['click'] ) )
@@ -106,11 +106,10 @@ class Calendar
   #
   update_header: () ->
     @$el.find('.mns-cal-title').text(@options['title'])
-    @$el.find('.mns-cal-date').text("#{@t.months[@month]} #{@year}")
+    @$el.find('.mns-cal-date').text("#{@t.months[@month-1]} #{@year}")
 
   # Create HTML skeleton of calendar
   setup_skeleton: () ->
-    t = {'today': 'dzisiaj'}#defaults['i18n']['translations']
     header = div('.navbar-header',
       div('.navbar-brand',
         i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')
@@ -118,7 +117,7 @@ class Calendar
 
     form = div('.navbar-form.navbar-right',
       div('.btn-toolbar',
-        div('.btn-group', a('.btn.btn-default.mns-cal-today', t['today']) ),
+        div('.btn-group', a('.btn.btn-default.mns-cal-today', @t['today']) ),
         div('.btn-group',
           a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')),
           a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right'))
@@ -129,11 +128,11 @@ class Calendar
 
     body = div('.panel.panel-default.mns-cal-body')
 
-    skeleton = div('.mns-cal', navbar, body)
+    cal = div('.mns-cal', navbar, body)
 
     #bind events
-    skeleton.find('.mns-cal-prev').click(@prev_month)
-    skeleton.find('.mns-cal-next').click(@next_month)
-    skeleton.find('.mns-cal-today').click(@today_month)
+    cal.find('.mns-cal-prev').click(@prev_month)
+    cal.find('.mns-cal-next').click(@next_month)
+    cal.find('.mns-cal-today').click(@today_month)
 
-    @$el.append skeleton
+    @$el.append cal

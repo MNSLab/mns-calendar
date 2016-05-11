@@ -86,10 +86,11 @@
                     name: 'Birthday',
                     start: '2016/05/11',
                     end: '2016/05/11',
-                    icon: 'birthday'
+                    icon: 'birthday-cake'
                   }
                 ],
                 click: function(label, event) {
+                  console.log(event);
                   return $(label).popover({
                     title: event.title,
                     placement: 'bottom',
