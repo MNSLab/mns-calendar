@@ -76,7 +76,6 @@
       })();
       this.callback = calendar.callback;
       this.today = calendar.today;
-      console.log('Kalendarz [wiersz]: ', this.current, this.today, this.days);
       this.slot_count = calendar.max_slots;
       this.slots = (function() {
         var m, results;
@@ -334,6 +333,7 @@
       this.setup_skeleton();
       this.load_events();
       this.render();
+      console.log(this.options.events);
     }
 
     Calendar.prototype.change_month = function(diff) {
@@ -355,7 +355,8 @@
     };
 
     Calendar.prototype.load_events = function() {
-      var event;
+      var end_date, event, start_date;
+      console.log(this.options.events);
       if (Array.isArray(this.options.events)) {
         return this.events = (function() {
           var len1, m, ref1, results;
@@ -368,7 +369,18 @@
           return results;
         }).call(this);
       } else {
-        return void 0;
+        start_date = moment(this.current).startOf('month').startOf('week');
+        end_date = moment(this.current).endOf('month').endOf('week');
+        $.ajax({
+          dataType: 'json',
+          url: this.options.events,
+          data: {
+            start_date: start_date.toISOString(),
+            end_date: end_date.toISOString(),
+            calendar_id: null
+          }
+        });
+        return this.events = [];
       }
     };
 

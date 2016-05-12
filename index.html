@@ -85,31 +85,7 @@
             $(function() {
               return $('#calendar').MnsCalendar({
                 title: 'MNS Calendar',
-                events: [
-                  {
-                    name: 'Birthday',
-                    start: '2016-05-11',
-                    day_long: true,
-                    icon: 'birthday-cake',
-                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.',
-                    backgroundColor: 'green',
-                    textColor: 'white'
-                  }, {
-                    name: 'Meeting at MNS Lab',
-                    start: '2016-05-13T12:00',
-                    end: '2016-05-13T13:15',
-                    icon: 'users',
-                    backgroundColor: 'red',
-                    textColor: 'white',
-                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
-                  }, {
-                    name: 'Longterm event',
-                    start: '2016-04-11',
-                    end: '2016-05-29',
-                    icon: 'cog',
-                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
-                  }
-                ],
+                events: 'events.json',
                 callback: function(label, event) {
                   return $(label).popover({
                     container: 'body',

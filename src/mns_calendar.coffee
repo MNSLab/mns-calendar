@@ -46,7 +46,7 @@ class Row
 
     @callback = calendar.callback
     @today = calendar.today
-    console.log('Kalendarz [wiersz]: ', @current, @today, @days)
+    # console.log('Kalendarz [wiersz]: ', @current, @today, @days)
 
     # generate empty slots
     @slot_count = calendar.max_slots
@@ -261,6 +261,7 @@ class Calendar
     @load_events()
 
     @render()
+    console.log(@options.events)
 
   # Time manipulation routines:
   change_month: (diff) ->
@@ -279,12 +280,23 @@ class Calendar
 
   # get data from array or remote json
   load_events: () ->
+    console.log(@options.events)
     if Array.isArray @options.events
       # we've got a list of event
       @events = (new Event(event, @callback) for event in @options.events)
     else
       # we've got a remote JSON
-      undefined
+      start_date = moment(@current).startOf('month').startOf('week')
+      end_date = moment(@current).endOf('month').endOf('week')
+      $.ajax
+        dataType: 'json'
+        url: @options.events
+        data:
+          start_date: start_date.toISOString()
+          end_date: end_date.toISOString()
+          calendar_id: null
+      @events = []
+
 
 
   # update skeleton

@@ -5,7 +5,7 @@ class Row
 
     @callback = calendar.callback
     @today = calendar.today
-    console.log('Kalendarz [wiersz]: ', @current, @today, @days)
+    # console.log('Kalendarz [wiersz]: ', @current, @today, @days)
 
     # generate empty slots
     @slot_count = calendar.max_slots
