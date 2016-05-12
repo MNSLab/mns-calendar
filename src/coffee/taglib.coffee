@@ -6,7 +6,7 @@ window.tag = (name, params...) ->
   # use shortcut
   if typeof(params[0]) is 'string'
     sc = params.shift()
-    klass = sc.match(/\.[-_0-9a-z]+/gi).join('').replace(/\./g,' ').trim()
+    klass = (sc.match(/\.[-_0-9a-z]+/gi)||[]).join('').replace(/\./g,' ').trim()
     id = ((sc.match(/\#[-_0-9a-z]+/gi)||[])[0] || '').slice(1)
 
     obj.attr(

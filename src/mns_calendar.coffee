@@ -6,7 +6,7 @@ window.tag = (name, params...) ->
   # use shortcut
   if typeof(params[0]) is 'string'
     sc = params.shift()
-    klass = sc.match(/\.[-_0-9a-z]+/gi).join('').replace(/\./g,' ').trim()
+    klass = (sc.match(/\.[-_0-9a-z]+/gi)||[]).join('').replace(/\./g,' ').trim()
     id = ((sc.match(/\#[-_0-9a-z]+/gi)||[])[0] || '').slice(1)
 
     obj.attr(
@@ -197,9 +197,11 @@ class Event
     if @icon?
       content.push em(".fa.fa-#{@icon}")
       content.push ' '
-    unless @day_long?
-      content.push strong('', @start.format('LT')+'-'+@end.format('LT'))
+
+    unless @day_long
+      content.push strong('', @start.format('LT').toLowerCase().replace(/ /g,''))
       content.push ' '
+
     content.push @name
     klass = ['label', 'label-primary']
 

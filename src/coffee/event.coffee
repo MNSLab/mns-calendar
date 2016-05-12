@@ -57,9 +57,11 @@ class Event
     if @icon?
       content.push em(".fa.fa-#{@icon}")
       content.push ' '
-    unless @day_long?
-      content.push strong('', @start.format('LT')+'-'+@end.format('LT'))
+
+    unless @day_long
+      content.push strong('', @start.format('LT').toLowerCase().replace(/ /g,''))
       content.push ' '
+
     content.push @name
     klass = ['label', 'label-primary']
 

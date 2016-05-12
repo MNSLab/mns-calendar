@@ -10,7 +10,7 @@
     obj = $("<" + name + ">");
     if (typeof params[0] === 'string') {
       sc = params.shift();
-      klass = sc.match(/\.[-_0-9a-z]+/gi).join('').replace(/\./g, ' ').trim();
+      klass = (sc.match(/\.[-_0-9a-z]+/gi) || []).join('').replace(/\./g, ' ').trim();
       id = ((sc.match(/\#[-_0-9a-z]+/gi) || [])[0] || '').slice(1);
       obj.attr({
         "class": klass,
@@ -271,8 +271,8 @@
         content.push(em(".fa.fa-" + this.icon));
         content.push(' ');
       }
-      if (this.day_long == null) {
-        content.push(strong('', this.start.format('LT') + '-' + this.end.format('LT')));
+      if (!this.day_long) {
+        content.push(strong('', this.start.format('LT').toLowerCase().replace(/ /g, '')));
         content.push(' ');
       }
       content.push(this.name);
