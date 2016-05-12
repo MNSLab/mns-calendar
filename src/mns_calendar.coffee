@@ -261,7 +261,7 @@ class Calendar
     @load_events()
 
     @render()
-    console.log(@options.events)
+
 
   # Time manipulation routines:
   change_month: (diff) ->
@@ -278,6 +278,11 @@ class Calendar
     @current = moment(@today).startOf('month')
     @render()
 
+  # callbacks for loading JSON events
+  load_json: (json) =>
+    @events = (new Event(event, @callback) for event in json)
+    @render()
+    
   # get data from array or remote json
   load_events: () ->
     console.log(@options.events)
@@ -286,17 +291,18 @@ class Calendar
       @events = (new Event(event, @callback) for event in @options.events)
     else
       # we've got a remote JSON
+      @events = []
       start_date = moment(@current).startOf('month').startOf('week')
       end_date = moment(@current).endOf('month').endOf('week')
-      $.ajax
-        dataType: 'json'
+      $.getJSON
         url: @options.events
         data:
           start_date: start_date.toISOString()
           end_date: end_date.toISOString()
           calendar_id: null
-      @events = []
-
+      .done @load_json
+      .fail ( jqxhr, textStatus, error) ->
+        console.log(jqxhr, textStatus, error)
 
 
   # update skeleton

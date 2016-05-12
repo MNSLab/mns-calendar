@@ -320,6 +320,7 @@
     };
 
     function Calendar(el, options) {
+      this.load_json = bind(this.load_json, this);
       this.today_month = bind(this.today_month, this);
       this.next_month = bind(this.next_month, this);
       this.prev_month = bind(this.prev_month, this);
@@ -333,7 +334,6 @@
       this.setup_skeleton();
       this.load_events();
       this.render();
-      console.log(this.options.events);
     }
 
     Calendar.prototype.change_month = function(diff) {
@@ -354,6 +354,20 @@
       return this.render();
     };
 
+    Calendar.prototype.load_json = function(json) {
+      var event;
+      this.events = (function() {
+        var len1, m, results;
+        results = [];
+        for (m = 0, len1 = json.length; m < len1; m++) {
+          event = json[m];
+          results.push(new Event(event, this.callback));
+        }
+        return results;
+      }).call(this);
+      return this.render();
+    };
+
     Calendar.prototype.load_events = function() {
       var end_date, event, start_date;
       console.log(this.options.events);
@@ -369,18 +383,19 @@
           return results;
         }).call(this);
       } else {
+        this.events = [];
         start_date = moment(this.current).startOf('month').startOf('week');
         end_date = moment(this.current).endOf('month').endOf('week');
-        $.ajax({
-          dataType: 'json',
+        return $.getJSON({
           url: this.options.events,
           data: {
             start_date: start_date.toISOString(),
             end_date: end_date.toISOString(),
             calendar_id: null
           }
+        }).done(this.load_json).fail(function(jqxhr, textStatus, error) {
+          return console.log(jqxhr, textStatus, error);
         });
-        return this.events = [];
       }
     };
 
