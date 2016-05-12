@@ -98,8 +98,8 @@
 
   Row = (function() {
     function Row(year, month, start, end, slots, callback) {
-      var i, j;
-      console.log('Kalendarz: ', year, month);
+      var i, j, today;
+      console.log('Kalendarz [wiersz]: ', year, month, start, end);
       this.year = year;
       this.month = month;
       this.start = start;
@@ -122,9 +122,10 @@
       })();
       this.callback = callback;
       this.days_in_month = DateHelper.days_in_month(year, month);
-      this.today = new Date();
-      this.today = this.today.getMonth() + 1 === this.month ? this.today.getDate() : null;
-      console.log(this.today);
+      today = new Date();
+      if (DateHelper.day_overlap_range(today, DateHelper.day(year, month, start), DateHelper.end_of_day(DateHelper.day(year, month, end)))) {
+        this.today = today.getDate();
+      }
     }
 
     Row.prototype.add = function(event) {
@@ -194,7 +195,7 @@
             klass = '.active';
           }
           if (i === this.today) {
-            klass = '.mns-cal-today.info';
+            klass = '.mns-cal-bg-today.info';
           }
           results.push(td(klass));
         }
@@ -203,13 +204,13 @@
     };
 
     Row.prototype.render_label = function(event, at_start, at_end) {
-      var callback, klass, res;
-      res = [];
+      var content, el, klass;
+      content = [];
       if (event.icon) {
-        res.push(i(".fa.fa-" + event.icon));
-        res.push(' ');
+        content.push(i(".fa.fa-" + event.icon));
+        content.push(' ');
       }
-      res.push(event.name);
+      content.push(event.name);
       klass = ['label', 'label-primary'];
       if (at_start) {
         klass.push('mns-cal-starts-here');
@@ -217,12 +218,15 @@
       if (at_end) {
         klass.push('mns-cal-ends-here');
       }
-      callback = this.callback;
-      return span({
-        "class": klass
-      }, res).click(function() {
-        return callback(this, event);
-      });
+      el = a({
+        "class": klass,
+        role: 'button',
+        tabindex: '0'
+      }, content);
+      if (this.callback != null) {
+        this.callback(el, event);
+      }
+      return el;
     };
 
     Row.prototype.render_slot = function(id) {
@@ -278,6 +282,8 @@
       }
       if (options.end != null) {
         this.end = new Date(options.end);
+      } else {
+        this.end = DateHelper.end_of_day(this.start);
       }
       if (this.day_long == null) {
         this.day_long = (this.start === DateHelper.begining_of_day(this.start)) && (this.end === DateHelper.begining_of_day(this.end));
@@ -308,8 +314,8 @@
 
     Calendar.prototype.defaults = {
       title: 'MNS Calendar',
-      click: function(link, event) {
-        return console.log(link, event);
+      callback: function(link, event) {
+        return console.log('Callback', link, event);
       },
       i18n: {
         lang: 'pl',
@@ -402,7 +408,7 @@
         if (day > 0 && (start.getDay() === this.start_of_week) && (start.getMonth() + 1 !== this.month)) {
           break;
         }
-        rows.push(new Row(this.year, this.month, day, day + 7, this.max_slots, this.options['click']));
+        rows.push(new Row(this.year, this.month, day, day + 7, this.max_slots, this.options['callback']));
         day += 7;
       }
       ref1 = this.events;

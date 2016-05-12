@@ -68,7 +68,8 @@ class DateHelper
 
 class Row
   constructor: (year, month, start, end, slots, callback) ->
-    console.log('Kalendarz: ', year, month)
+    console.log('Kalendarz [wiersz]: ', year, month, start, end)
+
     @year = year
     @month = month
     @start = start
@@ -80,9 +81,14 @@ class Row
     @days_in_month = DateHelper.days_in_month(year, month)
 
     # check today
-    @today = (new Date())
-    @today = if @today.getMonth()+1 is @month then @today.getDate() else null
-    console.log(@today)
+    today = (new Date())
+    if DateHelper.day_overlap_range(
+      today,
+      DateHelper.day(year,month,start),
+      DateHelper.end_of_day(DateHelper.day(year,month,end))
+    )
+      @today = today.getDate()
+
 
 
 
@@ -138,23 +144,26 @@ class Row
         for i in [@start..@end-1]
           klass = {}
           klass = '.active' unless (0 < i <= @days_in_month)
-          klass = '.mns-cal-today.info' if i is @today
+          klass = '.mns-cal-bg-today.info' if i is @today
           td(klass)
       ) )
 
+  # Create event label tag and trigger callback on it
   render_label: (event, at_start, at_end) ->
-    res =[]
+    content =[]
     if event.icon
-      res.push i(".fa.fa-#{event.icon}")
-      res.push ' '
-    res.push event.name
+      content.push i(".fa.fa-#{event.icon}")
+      content.push ' '
+    content.push event.name
     klass = ['label', 'label-primary']
     if at_start
       klass.push 'mns-cal-starts-here'
     if at_end
       klass.push 'mns-cal-ends-here'
-    callback = @callback
-    span({class: klass}, res).click( () -> callback(this, event) )
+
+    el = a({class: klass, role: 'button', tabindex: '0'}, content)
+    @callback(el, event) if @callback?
+    el
 
   render_slot: (id) ->
     res = []
@@ -203,7 +212,11 @@ class Event
     @day_long = options.day_long
 
     @start = new Date(options.start) if options.start?
-    @end   = new Date(options.end)   if options.end?
+
+    if options.end?
+      @end = new Date(options.end)
+    else
+      @end = DateHelper.end_of_day(@start)
 
     # day long
     unless @day_long?
@@ -215,7 +228,7 @@ class Event
       @end   = DateHelper.end_of_day(@end)
 
     @icon = options.icon
-    
+
     # store remeining user data
     for key of @defaults
       delete options[key]
@@ -234,7 +247,7 @@ class Calendar
   prefix = 'mns-cal'
   defaults:
     title: 'MNS Calendar'
-    click: (link, event) -> console.log(link, event)
+    callback: (link, event) -> console.log('Callback', link, event)
     i18n:
       lang: 'pl'
       translations:
@@ -313,7 +326,7 @@ class Calendar
       if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth()+1 isnt @month) # zaczynamy nowy tydzień w przyszłym
         break
 
-      rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['click'] ) )
+      rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['callback'] ) )
       day += 7
 
     for event in @events

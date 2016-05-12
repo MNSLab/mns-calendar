@@ -76,15 +76,31 @@
                   start: '2016/05/11',
                   end: '2016/05/11'
                   icon: 'birthday-cake'
+                  text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
+                },
+                {
+                  name: 'Meeting at MNS Lab',
+                  start: '2016/05/13',
+                  day_long: true,
+                  icon: 'users'
+                  text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
+                },
+                {
+                  name: 'Longterm event',
+                  start: '2016/04/11',
+                  end: '2016/05/29',
+                  icon: 'cogs',
+                  text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
                 }
               ]
 
-              click: (label, event) ->
-                console.log(event)
+              callback: (label, event) ->
+                console.log('Hello', label, event)
                 $(label).popover
-                  title: event.title
+                  container: 'body'
+                  title: event.name
                   placement: 'bottom'
-                  content: 'Od: '+event.from + ' do: '+event.to
+                  html: true
+                  content: '<small><b>Od: '+event.start.toLocaleDateString() + ' do: '+event.end.toLocaleDateString()+'</b></small><p class="text-justify">'+event.data.text+'</p>'
                   trigger: 'focus'
-                .popover 'show'
             );

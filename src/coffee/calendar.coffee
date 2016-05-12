@@ -5,7 +5,7 @@ class Calendar
   prefix = 'mns-cal'
   defaults:
     title: 'MNS Calendar'
-    click: (link, event) -> console.log(link, event)
+    callback: (link, event) -> console.log('Callback', link, event)
     i18n:
       lang: 'pl'
       translations:
@@ -84,7 +84,7 @@ class Calendar
       if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth()+1 isnt @month) # zaczynamy nowy tydzień w przyszłym
         break
 
-      rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['click'] ) )
+      rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['callback'] ) )
       day += 7
 
     for event in @events

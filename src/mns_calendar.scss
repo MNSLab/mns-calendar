@@ -50,7 +50,7 @@
 			height: 100%;
 		}
 	}
-	.mns-cal-today {
+	.mns-cal-bg-today {
 		opacity: 0.3;
 	}
 
@@ -61,14 +61,16 @@
 			text-align: right;
 			font-weight: normal;
 			padding: 2px;
+			padding-right:4px;
 		}
-		span.label {
+		.label {
 			display:block;
 			text-align:left;
 			margin:1px 0px;
 			text-overflow: ellipsis;
 			overflow:hidden;
-			cursor: pointer;
+			text-decoration: none;
+
 			&:hover {
 				opacity: 0.8;
 			}

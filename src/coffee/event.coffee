@@ -19,7 +19,11 @@ class Event
     @day_long = options.day_long
 
     @start = new Date(options.start) if options.start?
-    @end   = new Date(options.end)   if options.end?
+
+    if options.end?
+      @end = new Date(options.end)
+    else
+      @end = DateHelper.end_of_day(@start)
 
     # day long
     unless @day_long?
@@ -31,7 +35,7 @@ class Event
       @end   = DateHelper.end_of_day(@end)
 
     @icon = options.icon
-    
+
     # store remeining user data
     for key of @defaults
       delete options[key]
