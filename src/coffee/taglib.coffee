@@ -19,6 +19,8 @@ window.tag = (name, params...) ->
     attrs = params.shift()
     if Array.isArray attrs['class']
       attrs['class'] = attrs['class'].join ' '
+    if typeof attrs['style'] is 'object'
+      attrs['style'] = ("#{k}:#{v}" for k,v of attrs['style']).join ';'
     obj.attr(attrs)
 
   # append content
@@ -30,7 +32,7 @@ window.tag = (name, params...) ->
   obj
 
 # define shortcuts
-for tag_name in ['div', 'i', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td']
+for tag_name in ['div', 'strong', 'em', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td', 'i']
   ((s) ->
     window[s] = (params...) -> tag(s, params...)
   )(tag_name)

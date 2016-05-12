@@ -1,56 +1,44 @@
-#= require DateHelper
-
 class Row
-  constructor: (year, month, start, end, slots, callback) ->
-    console.log('Kalendarz [wiersz]: ', year, month, start, end)
+  constructor: (calendar, start_day) ->
+    @current = calendar.current
+    @days = (moment(start_day).add(d, 'days') for d in [0..6])
 
-    @year = year
-    @month = month
-    @start = start
-    @end  = end
+    @callback = calendar.callback
+    @today = calendar.today
+    console.log('Kalendarz [wiersz]: ', @current, @today, @days)
+
     # generate empty slots
-    @slot_count = slots
-    @slots = ((true for j in [0..slots-1]) for i in [start..end-1])
-    @callback = callback
-    @days_in_month = DateHelper.days_in_month(year, month)
-
-    # check today
-    today = (new Date())
-    if DateHelper.day_overlap_range(
-      today,
-      DateHelper.day(year,month,start),
-      DateHelper.end_of_day(DateHelper.day(year,month,end))
-    )
-      @today = today.getDate()
-
-
+    @slot_count = calendar.max_slots
+    @slots = ((true for j in [0..@slot_count-1]) for i in [0..6])
 
 
   add: (event) ->
     [start, end] = [null, null]
-    for i in [@start..@end-1]
-      if event.overlap_day(DateHelper.day(@year, @month, i))
-        start ?= i-@start
-        end = i-@start
+    for day, i in @days
+      if event.overlap_day(day)
+        start ?= i
+        end = i
 
     if start is null
       return false
 
     free_slot = @find_free_slot(start, end)
+    if free_slot is false
+      return false
 
-    if free_slot isnt false
-      @slots[start][free_slot] = {
-        event: event,
-        colspan: end-start+1,
-        start: start+@start,
-        end: end+@start
-      }
 
-      for j in [start+1..end] by 1
-        @slots[j][free_slot] = false
-      return true
+    @slots[start][free_slot] = {
+      event: event,
+      colspan: end-start+1,
+      starts_here: @days[start].isSame(event.start, 'day'),
+      ends_here: @days[end].isSame(event.end, 'day'),
+    }
 
-    return false
+    for j in [start+1..end] by 1
+      @slots[j][free_slot] = false
+
+    return true
+
 
   find_free_slot: (start, end) ->
     for slot in [0..@slot_count-1]
@@ -64,60 +52,40 @@ class Row
     return false
 
 
-
+  # display days numbers
   render_header: () ->
-    res = []
-    for i in [@start..@end-1]
-      res.push(th({}, (DateHelper.day(@year, @month, i)).getDate()))
+    days = []
+    for day in @days
+      days.push th({}, day.format('D'))
 
-    tr('.mns-cal-row-header', res )
+    tr('.mns-cal-row-header', days)
 
+
+  # display day background below events indicating 'this month' or 'today'
   render_bg: () ->
     table('.table.table-bordered',
       tr({},
-        for i in [@start..@end-1]
+        for day in @days
           klass = {}
-          klass = '.active' unless (0 < i <= @days_in_month)
-          klass = '.mns-cal-bg-today.info' if i is @today
+          klass = '.active' unless day.isSame(@current, 'month')
+          klass = '.mns-cal-bg-today.info' if day.isSame(@today, 'day')
           td(klass)
       ) )
 
-  # Create event label tag and trigger callback on it
-  render_label: (event, at_start, at_end) ->
-    content =[]
-    if event.icon
-      content.push i(".fa.fa-#{event.icon}")
-      content.push ' '
-    content.push event.name
-    klass = ['label', 'label-primary']
-    if at_start
-      klass.push 'mns-cal-starts-here'
-    if at_end
-      klass.push 'mns-cal-ends-here'
-
-    el = a({class: klass, role: 'button', tabindex: '0'}, content)
-    
-    el.css('color', event.color) if event.color?
-    el.css('background', event.background) if event.background?
-
-    @callback(el, event) if @callback?
-    el
-
   render_slot: (id) ->
     res = []
-    for i in [0..6]
+    for day, i in @days
       obj = @slots[i][id]
       type = typeof(obj)
 
       if obj is true
         res.push td({},'')
       else if type is 'object'
+        klass = []
+        klass.push 'mns-cal-starts-here' if obj.starts_here
+        klass.push 'mns-cal-ends-here' if obj.ends_here
+        res.push td({class: klass, colspan: obj.colspan}, obj.event.render_as_label)
 
-        res.push td({colspan: obj.colspan}, @render_label(
-          obj.event,
-          !obj.event.overlap_day(DateHelper.day(@year, @month, obj.start-1)),
-          !obj.event.overlap_day(DateHelper.day(@year, @month, obj.end+1))
-        ) )
     tr('.mns-cal-row', res)
 
 

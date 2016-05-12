@@ -19,6 +19,8 @@ window.tag = (name, params...) ->
     attrs = params.shift()
     if Array.isArray attrs['class']
       attrs['class'] = attrs['class'].join ' '
+    if typeof attrs['style'] is 'object'
+      attrs['style'] = ("#{k}:#{v}" for k,v of attrs['style']).join ';'
     obj.attr(attrs)
 
   # append content
@@ -30,93 +32,54 @@ window.tag = (name, params...) ->
   obj
 
 # define shortcuts
-for tag_name in ['div', 'i', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td']
+for tag_name in ['div', 'strong', 'em', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td', 'i']
   ((s) ->
     window[s] = (params...) -> tag(s, params...)
   )(tag_name)
 
 window['nbsp'] = document.createTextNode(String.fromCharCode(160))
 
-class DateHelper
-  # return begining of day pointed by given date
-  @begining_of_day: (date) ->
-    date = new Date(date) if typeof(date) is 'string'
-    date.setHours(0); date.setMinutes(0); date.setSeconds(0, 0)
-    date
-
-  # return end of dat pointed by given date
-  @end_of_day: (date) ->
-    date = new Date(date) if typeof(date) is 'string'
-    date.setHours(23); date.setMinutes(59); date.setSeconds(59, 999)
-    date
-
-  @day_overlap_range: (day, range_from, range_to) ->
-    start = DateHelper.begining_of_day(day)
-    end = DateHelper.end_of_day(day)
-    not (range_to < start or range_from > end)
-
-  @day: (year, month, day) ->
-    new Date(year, month-1, day)
-
-  @days_in_month: (year, month) ->
-    (new Date(year, month, 0)).getDate()
-
-  @day_of_week: (year, month, day) ->
-    (new Date(year, month-1, day)).getDay()
-
-
-
 class Row
-  constructor: (year, month, start, end, slots, callback) ->
-    console.log('Kalendarz [wiersz]: ', year, month, start, end)
+  constructor: (calendar, start_day) ->
+    @current = calendar.current
+    @days = (moment(start_day).add(d, 'days') for d in [0..6])
 
-    @year = year
-    @month = month
-    @start = start
-    @end  = end
+    @callback = calendar.callback
+    @today = calendar.today
+    console.log('Kalendarz [wiersz]: ', @current, @today, @days)
+
     # generate empty slots
-    @slot_count = slots
-    @slots = ((true for j in [0..slots-1]) for i in [start..end-1])
-    @callback = callback
-    @days_in_month = DateHelper.days_in_month(year, month)
-
-    # check today
-    today = (new Date())
-    if DateHelper.day_overlap_range(
-      today,
-      DateHelper.day(year,month,start),
-      DateHelper.end_of_day(DateHelper.day(year,month,end))
-    )
-      @today = today.getDate()
-
-
+    @slot_count = calendar.max_slots
+    @slots = ((true for j in [0..@slot_count-1]) for i in [0..6])
 
 
   add: (event) ->
     [start, end] = [null, null]
-    for i in [@start..@end-1]
-      if event.overlap_day(DateHelper.day(@year, @month, i))
-        start ?= i-@start
-        end = i-@start
+    for day, i in @days
+      if event.overlap_day(day)
+        start ?= i
+        end = i
 
     if start is null
       return false
 
     free_slot = @find_free_slot(start, end)
+    if free_slot is false
+      return false
 
-    if free_slot isnt false
-      @slots[start][free_slot] = {
-        event: event,
-        colspan: end-start+1,
-        start: start+@start,
-        end: end+@start
-      }
 
-      for j in [start+1..end] by 1
-        @slots[j][free_slot] = false
-      return true
+    @slots[start][free_slot] = {
+      event: event,
+      colspan: end-start+1,
+      starts_here: @days[start].isSame(event.start, 'day'),
+      ends_here: @days[end].isSame(event.end, 'day'),
+    }
 
-    return false
+    for j in [start+1..end] by 1
+      @slots[j][free_slot] = false
+
+    return true
+
 
   find_free_slot: (start, end) ->
     for slot in [0..@slot_count-1]
@@ -130,60 +93,40 @@ class Row
     return false
 
 
-
+  # display days numbers
   render_header: () ->
-    res = []
-    for i in [@start..@end-1]
-      res.push(th({}, (DateHelper.day(@year, @month, i)).getDate()))
+    days = []
+    for day in @days
+      days.push th({}, day.format('D'))
 
-    tr('.mns-cal-row-header', res )
+    tr('.mns-cal-row-header', days)
 
+
+  # display day background below events indicating 'this month' or 'today'
   render_bg: () ->
     table('.table.table-bordered',
       tr({},
-        for i in [@start..@end-1]
+        for day in @days
           klass = {}
-          klass = '.active' unless (0 < i <= @days_in_month)
-          klass = '.mns-cal-bg-today.info' if i is @today
+          klass = '.active' unless day.isSame(@current, 'month')
+          klass = '.mns-cal-bg-today.info' if day.isSame(@today, 'day')
           td(klass)
       ) )
 
-  # Create event label tag and trigger callback on it
-  render_label: (event, at_start, at_end) ->
-    content =[]
-    if event.icon
-      content.push i(".fa.fa-#{event.icon}")
-      content.push ' '
-    content.push event.name
-    klass = ['label', 'label-primary']
-    if at_start
-      klass.push 'mns-cal-starts-here'
-    if at_end
-      klass.push 'mns-cal-ends-here'
-
-    el = a({class: klass, role: 'button', tabindex: '0'}, content)
-    
-    el.css('color', event.color) if event.color?
-    el.css('background', event.background) if event.background?
-
-    @callback(el, event) if @callback?
-    el
-
   render_slot: (id) ->
     res = []
-    for i in [0..6]
+    for day, i in @days
       obj = @slots[i][id]
       type = typeof(obj)
 
       if obj is true
         res.push td({},'')
       else if type is 'object'
+        klass = []
+        klass.push 'mns-cal-starts-here' if obj.starts_here
+        klass.push 'mns-cal-ends-here' if obj.ends_here
+        res.push td({class: klass, colspan: obj.colspan}, obj.event.render_as_label)
 
-        res.push td({colspan: obj.colspan}, @render_label(
-          obj.event,
-          !obj.event.overlap_day(DateHelper.day(@year, @month, obj.start-1)),
-          !obj.event.overlap_day(DateHelper.day(@year, @month, obj.end+1))
-        ) )
     tr('.mns-cal-row', res)
 
 
@@ -195,8 +138,6 @@ class Row
 
     div('.mns-cal-week', div('.mns-cal-bg', @render_bg() ), div('.mns-cal-rows', table('.table.table-condensed', html ) ) )
 
-
-
 class Event
   defaults =
     name: 'Event'
@@ -204,36 +145,39 @@ class Event
     end: undefined
     day_long: undefined
     icon: undefined # font-awesome icon suffix, eg fa-birthday-cake -> birthday-cake
-    textColor: undefined
+    textColor: undefined # text color as css compatible string
+    backgroundColor: undefined # background color as css compatible string
+    #callback: undefined # callback executed after html element create
     #textClass: undefined
-    backgroundColor: undefined
     #backgroundClass: undefined
 
-  constructor: (options) ->
+  constructor: (options, callback) ->
     @event_data = $.extend({}, @defaults, options)
 
     @name = options.name
     @day_long = options.day_long
 
-    @start = new Date(options.start) if options.start?
+    @start = moment(options.start) if options.start?
 
     if options.end?
-      @end = new Date(options.end)
+      @end = moment(options.end)
     else
-      @end = DateHelper.end_of_day(@start)
+      @end = moment(@start).endOf('day')
 
     # day long
     unless @day_long?
-      @day_long = (@start is DateHelper.begining_of_day(@start)) and
-        (@end is DateHelper.begining_of_day(@end))
+      @day_long = @start.isSame(moment(@start).startOf('day')) and (
+        @end.isSame(moment(@end).startOf('day')) or
+        @end.isSame(moment(@end).endOf('day')) )
 
     if @day_long is true
-      @start = DateHelper.begining_of_day(@start)
-      @end   = DateHelper.end_of_day(@end)
+      @start.startOf('day')
+      @end.endOf('day')
 
     @icon = options.icon
     @color = options.textColor
     @background = options.backgroundColor
+    @callback = callback
 
     # store remeining user data
     for key of @defaults
@@ -244,7 +188,30 @@ class Event
 
   # check if this event overlap given day
   overlap_day: (day) ->
-    DateHelper.day_overlap_range(day, @start, @end)
+    day.isSameOrAfter(@start, 'day') and day.isSameOrBefore(@end, 'day')
+
+  # create html tag for this event
+  render_as_label: =>
+    content = []
+
+    if @icon?
+      content.push em(".fa.fa-#{@icon}")
+      content.push ' '
+    unless @day_long?
+      content.push strong('', @start.format('LT')+'-'+@end.format('LT'))
+      content.push ' '
+    content.push @name
+    klass = ['label', 'label-primary']
+
+
+
+    el = a({class: klass, role: 'button', tabindex: '0'}, content)
+    el.css('color', @color) if @color?
+    el.css('background', @background) if @background?
+
+    @callback(el, @) if @callback?
+    el
+
 
 
 
@@ -266,30 +233,36 @@ class Calendar
 
   constructor: (el, options) ->
     @options = $.extend({}, @defaults, options)
+
+    # HTML container of calendar
     @$el = $(el)
 
+    # Today
+    @today = moment().startOf('day')
 
-    @month = 5
-    @year = 2016
-    @start_of_week = 1
+    # Current displayed month
+    @current = moment(@today).startOf('month')
+
+    # Callback fired after event label is created
+    @callback = @options.callback
+
+    # Translations
+    @t = @options['i18n']['translations']
+
+    # Max number of slots displayed per day
     @max_slots = 4
 
-    @load_events() #load events data from config
-    @t = @options['i18n']['translations'] # setup translations
+    # Create HTML skeleton of the calendar
     @setup_skeleton()
+
+    # Load events data from config
+    @load_events()
+
     @render()
 
   # Time manipulation routines:
   change_month: (diff) ->
-    @month += diff
-
-    while(@month < 1)
-      @month += 12
-      @year -= 1
-
-    while(@month > 12)
-      @month -= 12
-      @year += 1
+    @current.add(diff, 'month')
     @render()
 
   prev_month: () =>
@@ -299,16 +272,14 @@ class Calendar
     @change_month 1
 
   today_month: () =>
-    now = new Date()
-    @month = now.getMonth()+1
-    @year = now.getFullYear()
+    @current = moment(@today).startOf('month')
     @render()
 
   # get data from array or remote json
   load_events: () ->
     if Array.isArray @options.events
       # we've got a list of event
-      @events = (new Event(event) for event in @options.events)
+      @events = (new Event(event, @callback) for event in @options.events)
     else
       # we've got a remote JSON
       undefined
@@ -316,24 +287,14 @@ class Calendar
 
   # update skeleton
   render: () ->
-    @start_of_week ?= 0
-
     @update_header()
     rows = []
-    day = 1
 
-    # TODO: optimize
-    while(DateHelper.day_of_week(@year, @month, day) isnt @start_of_week)
-      day--; # szukamy początku tygodnia
+    day = moment(@current).startOf('month').startOf('week')
 
-    while(true)
-      start = DateHelper.day(@year, @month, day)
-
-      if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth()+1 isnt @month) # zaczynamy nowy tydzień w przyszłym
-        break
-
-      rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['callback'] ) )
-      day += 7
+    while(day.isSameOrBefore(@current, 'month'))
+      rows.push( new Row(@, day) )
+      day.add(7, 'days') # next week
 
     for event in @events
       for row in rows
@@ -344,17 +305,14 @@ class Calendar
     for row in rows
       body.append row.render()
 
-
-
-
   # update settings
   update: () ->
-
+    undefined
 
   #
   update_header: () ->
     @$el.find('.mns-cal-title').text(@options['title'])
-    @$el.find('.mns-cal-date').text("#{@t.months[@month-1]} #{@year}")
+    @$el.find('.mns-cal-date').text(@current.format('MMMM YYYY'))
 
   # Create HTML skeleton of calendar
   setup_skeleton: () ->
@@ -373,6 +331,8 @@ class Calendar
       ) )
     navbar = nav('.navbar.navbar-default',
       div('.container-fluid', header, form) )
+
+    # TODO: display week days names
 
     body = div('.panel.panel-default.mns-cal-body')
 

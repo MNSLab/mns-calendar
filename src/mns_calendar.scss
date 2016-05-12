@@ -54,6 +54,18 @@
 		opacity: 0.3;
 	}
 
+	td:not(.mns-cal-starts-here) .label {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+	td:not(.mns-cal-ends-here) .label {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	td.mns-cal-starts-here .label { margin-left: 6px; }
+	td.mns-cal-ends-here .label { margin-right: 6px; }
+
 	.mns-cal-rows{
 		position: relative;
 		z-index: 1;
@@ -74,16 +86,8 @@
 			&:hover {
 				opacity: 0.8;
 			}
-			&:not(.mns-cal-starts-here){
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-			}
-			&:not(.mns-cal-ends-here) {
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-			}
-			&.mns-cal-starts-here { margin-left: 6px; }
-			&.mns-cal-ends-here { margin-right: 6px; }
+
+
 		}
 	}
 }

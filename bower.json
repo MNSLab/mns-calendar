@@ -28,6 +28,7 @@
   "dependencies": {
     "bootswatch": "^3.3.6+1",
     "font-awesome": "^4.6.1",
-    "jquery": "^2.2.3"
+    "jquery": "^2.2.3",
+    "moment": "^2.13.0"
   }
 }

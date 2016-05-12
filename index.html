@@ -7,6 +7,7 @@
     <link href='bower_components/font-awesome/css/font-awesome.min.css' rel='stylesheet'>
     <script src='bower_components/jquery/dist/jquery.min.js'></script>
     <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
+    <script src='bower_components/moment/moment.js'></script>
     <link href='dist/mns_calendar.css' rel='stylesheet'>
     <script src='dist/mns_calendar.js'></script>
   </head>
@@ -31,6 +32,9 @@
                 </li>
                 <li>
                   <a href='http://fortawesome.github.io/Font-Awesome/'>font-awesome</a>
+                </li>
+                <li>
+                  <a href='http://momentjs.com/'>momentjs</a>
                 </li>
               </ul>
             </div>
@@ -84,36 +88,35 @@
                 events: [
                   {
                     name: 'Birthday',
-                    start: '2016/05/11',
-                    end: '2016/05/11',
+                    start: '2016-05-11',
+                    day_long: true,
                     icon: 'birthday-cake',
                     text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.',
                     backgroundColor: 'green',
                     textColor: 'white'
                   }, {
                     name: 'Meeting at MNS Lab',
-                    start: '2016/05/13',
-                    day_long: true,
+                    start: '2016-05-13T12:00',
+                    end: '2016-05-13T13:15',
                     icon: 'users',
                     backgroundColor: 'red',
                     textColor: 'white',
                     text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
                   }, {
                     name: 'Longterm event',
-                    start: '2016/04/11',
-                    end: '2016/05/29',
-                    icon: 'cogs',
+                    start: '2016-04-11',
+                    end: '2016-05-29',
+                    icon: 'cog',
                     text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
                   }
                 ],
                 callback: function(label, event) {
-                  console.log('Hello', label, event);
                   return $(label).popover({
                     container: 'body',
                     title: '<span class="fa fa-' + event.icon + '" style="margin-right:6px"></span> ' + event.name,
                     placement: 'bottom',
                     html: true,
-                    content: '<small><b>Od: ' + event.start.toLocaleDateString() + ' do: ' + event.end.toLocaleDateString() + '</b></small><p class="text-justify">' + event.data.text + '</p>',
+                    content: '<small><b>Od: ' + event.start.format('LLL') + '<br/>Do: ' + event.end.format('LLL') + '</b></small><p class="text-justify">' + event.data.text + '</p>',
                     trigger: 'focus'
                   });
                 }

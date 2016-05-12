@@ -1,4 +1,5 @@
 #= require Event
+#= require Row
 
 # Define the plugin class
 class Calendar
@@ -18,30 +19,36 @@ class Calendar
 
   constructor: (el, options) ->
     @options = $.extend({}, @defaults, options)
+
+    # HTML container of calendar
     @$el = $(el)
 
+    # Today
+    @today = moment().startOf('day')
 
-    @month = 5
-    @year = 2016
-    @start_of_week = 1
+    # Current displayed month
+    @current = moment(@today).startOf('month')
+
+    # Callback fired after event label is created
+    @callback = @options.callback
+
+    # Translations
+    @t = @options['i18n']['translations']
+
+    # Max number of slots displayed per day
     @max_slots = 4
 
-    @load_events() #load events data from config
-    @t = @options['i18n']['translations'] # setup translations
+    # Create HTML skeleton of the calendar
     @setup_skeleton()
+
+    # Load events data from config
+    @load_events()
+
     @render()
 
   # Time manipulation routines:
   change_month: (diff) ->
-    @month += diff
-
-    while(@month < 1)
-      @month += 12
-      @year -= 1
-
-    while(@month > 12)
-      @month -= 12
-      @year += 1
+    @current.add(diff, 'month')
     @render()
 
   prev_month: () =>
@@ -51,16 +58,14 @@ class Calendar
     @change_month 1
 
   today_month: () =>
-    now = new Date()
-    @month = now.getMonth()+1
-    @year = now.getFullYear()
+    @current = moment(@today).startOf('month')
     @render()
 
   # get data from array or remote json
   load_events: () ->
     if Array.isArray @options.events
       # we've got a list of event
-      @events = (new Event(event) for event in @options.events)
+      @events = (new Event(event, @callback) for event in @options.events)
     else
       # we've got a remote JSON
       undefined
@@ -68,24 +73,14 @@ class Calendar
 
   # update skeleton
   render: () ->
-    @start_of_week ?= 0
-
     @update_header()
     rows = []
-    day = 1
 
-    # TODO: optimize
-    while(DateHelper.day_of_week(@year, @month, day) isnt @start_of_week)
-      day--; # szukamy początku tygodnia
+    day = moment(@current).startOf('month').startOf('week')
 
-    while(true)
-      start = DateHelper.day(@year, @month, day)
-
-      if day > 0 and (start.getDay() is @start_of_week) and (start.getMonth()+1 isnt @month) # zaczynamy nowy tydzień w przyszłym
-        break
-
-      rows.push( new Row(@year, @month, day, day+7, @max_slots, @options['callback'] ) )
-      day += 7
+    while(day.isSameOrBefore(@current, 'month'))
+      rows.push( new Row(@, day) )
+      day.add(7, 'days') # next week
 
     for event in @events
       for row in rows
@@ -96,17 +91,14 @@ class Calendar
     for row in rows
       body.append row.render()
 
-
-
-
   # update settings
   update: () ->
-
+    undefined
 
   #
   update_header: () ->
     @$el.find('.mns-cal-title').text(@options['title'])
-    @$el.find('.mns-cal-date').text("#{@t.months[@month-1]} #{@year}")
+    @$el.find('.mns-cal-date').text(@current.format('MMMM YYYY'))
 
   # Create HTML skeleton of calendar
   setup_skeleton: () ->
@@ -125,6 +117,8 @@ class Calendar
       ) )
     navbar = nav('.navbar.navbar-default',
       div('.container-fluid', header, form) )
+
+    # TODO: display week days names
 
     body = div('.panel.panel-default.mns-cal-body')
 

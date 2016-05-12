@@ -8,7 +8,7 @@
     %link{rel: 'stylesheet', href: 'bower_components/font-awesome/css/font-awesome.min.css'}
     %script{ src: 'bower_components/jquery/dist/jquery.min.js' }
     %script{ src: 'bower_components/bootstrap/dist/js/bootstrap.min.js' }
-
+    %script{ src: 'bower_components/moment/moment.js' }
     %link{ rel: 'stylesheet', href: 'dist/mns_calendar.css' }
     %script{ src: 'dist/mns_calendar.js' }
 
@@ -30,6 +30,8 @@
                   %a{href: 'http://getbootstrap.com'} Bootstrap
                 %li
                   %a{href: 'http://fortawesome.github.io/Font-Awesome/'} font-awesome
+                %li
+                  %a{href: 'http://momentjs.com/'} momentjs
             %div.col-sm-6
               %h5 Development
               %ul.list
@@ -73,8 +75,8 @@
               events: [
                 {
                   name: 'Birthday',
-                  start: '2016/05/11',
-                  end: '2016/05/11'
+                  start: '2016-05-11',
+                  day_long: true
                   icon: 'birthday-cake'
                   text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
                   backgroundColor: 'green',
@@ -82,8 +84,8 @@
                 },
                 {
                   name: 'Meeting at MNS Lab',
-                  start: '2016/05/13',
-                  day_long: true,
+                  start: '2016-05-13T12:00',
+                  end: '2016-05-13T13:15'
                   icon: 'users',
                   backgroundColor: 'red',
                   textColor: 'white'
@@ -91,20 +93,19 @@
                 },
                 {
                   name: 'Longterm event',
-                  start: '2016/04/11',
-                  end: '2016/05/29',
-                  icon: 'cogs',
+                  start: '2016-04-11',
+                  end: '2016-05-29',
+                  icon: 'cog',
                   text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
                 }
               ]
 
               callback: (label, event) ->
-                console.log('Hello', label, event)
                 $(label).popover
                   container: 'body'
                   title: '<span class="fa fa-'+event.icon+'" style="margin-right:6px"></span> '+event.name
                   placement: 'bottom'
                   html: true
-                  content: '<small><b>Od: '+event.start.toLocaleDateString() + ' do: '+event.end.toLocaleDateString()+'</b></small><p class="text-justify">'+event.data.text+'</p>'
+                  content: '<small><b>Od: '+event.start.format('LLL') + '<br/>Do: '+event.end.format('LLL')+'</b></small><p class="text-justify">'+event.data.text+'</p>'
                   trigger: 'focus'
             );
