@@ -87,12 +87,16 @@
                     start: '2016/05/11',
                     end: '2016/05/11',
                     icon: 'birthday-cake',
-                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
+                    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.',
+                    backgroundColor: 'green',
+                    textColor: 'white'
                   }, {
                     name: 'Meeting at MNS Lab',
                     start: '2016/05/13',
                     day_long: true,
                     icon: 'users',
+                    backgroundColor: 'red',
+                    textColor: 'white',
                     text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.'
                   }, {
                     name: 'Longterm event',
@@ -106,7 +110,7 @@
                   console.log('Hello', label, event);
                   return $(label).popover({
                     container: 'body',
-                    title: event.name,
+                    title: '<span class="fa fa-' + event.icon + '" style="margin-right:6px"></span> ' + event.name,
                     placement: 'bottom',
                     html: true,
                     content: '<small><b>Od: ' + event.start.toLocaleDateString() + ' do: ' + event.end.toLocaleDateString() + '</b></small><p class="text-justify">' + event.data.text + '</p>',

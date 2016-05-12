@@ -223,6 +223,12 @@
         role: 'button',
         tabindex: '0'
       }, content);
+      if (event.color != null) {
+        el.css('color', event.color);
+      }
+      if (event.background != null) {
+        el.css('background', event.background);
+      }
       if (this.callback != null) {
         this.callback(el, event);
       }
@@ -293,6 +299,8 @@
         this.end = DateHelper.end_of_day(this.end);
       }
       this.icon = options.icon;
+      this.color = options.textColor;
+      this.background = options.backgroundColor;
       for (key in this.defaults) {
         delete options[key];
       }

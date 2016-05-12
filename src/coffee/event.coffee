@@ -35,6 +35,8 @@ class Event
       @end   = DateHelper.end_of_day(@end)
 
     @icon = options.icon
+    @color = options.textColor
+    @background = options.backgroundColor
 
     # store remeining user data
     for key of @defaults

@@ -162,6 +162,10 @@ class Row
       klass.push 'mns-cal-ends-here'
 
     el = a({class: klass, role: 'button', tabindex: '0'}, content)
+    
+    el.css('color', event.color) if event.color?
+    el.css('background', event.background) if event.background?
+
     @callback(el, event) if @callback?
     el
 
@@ -228,6 +232,8 @@ class Event
       @end   = DateHelper.end_of_day(@end)
 
     @icon = options.icon
+    @color = options.textColor
+    @background = options.backgroundColor
 
     # store remeining user data
     for key of @defaults

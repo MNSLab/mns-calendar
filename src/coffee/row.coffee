@@ -96,6 +96,10 @@ class Row
       klass.push 'mns-cal-ends-here'
 
     el = a({class: klass, role: 'button', tabindex: '0'}, content)
+    
+    el.css('color', event.color) if event.color?
+    el.css('background', event.background) if event.background?
+
     @callback(el, event) if @callback?
     el
 
