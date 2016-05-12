@@ -332,13 +332,12 @@
       this.t = this.options['i18n']['translations'];
       this.max_slots = 4;
       this.setup_skeleton();
-      this.load_events();
-      this.render();
+      this.redraw();
     }
 
     Calendar.prototype.change_month = function(diff) {
       this.current.add(diff, 'month');
-      return this.render();
+      return this.redraw();
     };
 
     Calendar.prototype.prev_month = function() {
@@ -351,7 +350,7 @@
 
     Calendar.prototype.today_month = function() {
       this.current = moment(this.today).startOf('month');
-      return this.render();
+      return this.redraw();
     };
 
     Calendar.prototype.load_json = function(json) {
@@ -424,6 +423,11 @@
         results.push(body.append(row.render()));
       }
       return results;
+    };
+
+    Calendar.prototype.redraw = function() {
+      this.load_events();
+      return this.render();
     };
 
     Calendar.prototype.update = function() {

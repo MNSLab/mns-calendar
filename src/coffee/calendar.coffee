@@ -41,16 +41,14 @@ class Calendar
     # Create HTML skeleton of the calendar
     @setup_skeleton()
 
-    # Load events data from config
-    @load_events()
-
-    @render()
+    # Load events data from config and render
+    @redraw()
 
 
   # Time manipulation routines:
   change_month: (diff) ->
     @current.add(diff, 'month')
-    @render()
+    @redraw()
 
   prev_month: () =>
     @change_month -1
@@ -60,16 +58,15 @@ class Calendar
 
   today_month: () =>
     @current = moment(@today).startOf('month')
-    @render()
+    @redraw()
 
   # callbacks for loading JSON events
   load_json: (json) =>
     @events = (new Event(event, @callback) for event in json)
     @render()
-    
+
   # get data from array or remote json
   load_events: () ->
-    console.log(@options.events)
     if Array.isArray @options.events
       # we've got a list of event
       @events = (new Event(event, @callback) for event in @options.events)
@@ -110,9 +107,12 @@ class Calendar
       body.append row.render()
 
   # update settings
+  redraw: () ->
+    @load_events()
+    @render()
+
   update: () ->
     undefined
-
   #
   update_header: () ->
     @$el.find('.mns-cal-title').text(@options['title'])
