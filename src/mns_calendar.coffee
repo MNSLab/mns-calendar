@@ -232,7 +232,7 @@ class Calendar
     callback: (link, event) -> console.log('Callback', link, event)
     events: []
     calendar: undefined
-    calendars: undefined
+    calendars: []
     i18n:
       lang: 'pl'
       translations:
@@ -263,15 +263,12 @@ class Calendar
 
     # Max number of slots displayed per day
     @max_slots = 4
-
-    # List of calendars
-    @calendar_id = @options.calendar
-    @calendars = @options.calendars
-    if @calendars? and not @calendar_id?
-      @calendars[0]?.id
-
-    # Create HTML skeleton of the calendar
+    
+    # Create HTML skeleton of the calendar and parse calendar list
     @setup_skeleton()
+
+    # Set default calendar
+    @set_calendar(@options.calendar) if @calendars?
 
     # Load events data from config and render
     @redraw()
@@ -298,11 +295,12 @@ class Calendar
     if @calendars?
       console.log(@calendar_id, calendar_id)
       for calendar in @calendars
-        if calendar.id is calendar_id
+        if calendar.id is calendar_id or not calendar_id?
           @calendar_id = calendar.id
           @calendar_name = calendar.name
           @redraw()
           break
+
 
   # callbacks for loading JSON events
   load_json: (json) =>
@@ -375,22 +373,34 @@ class Calendar
     @$el.find('.mns-cal-date').text(@current.format('MMMM YYYY'))
     @$el.find('.mns-cal-calendar-name').text(@calendar_name) if @calendars?
 
-  build_dropdown: () ->
+  build_calendars_list: () ->
     items = []
+    callback = @set_calendar
+    @calendars = []
+    if @options.calendars.length == 0
+      return ''
 
-    for calendar in @calendars
+    create_li = (id, name) ->
+      # TODO: some replacement for this href
+      link = a({href:'javascript:;'}, name)
+      link.click () ->
+        callback(id)
+
+      li('', link)
+
+    for calendar in @options.calendars
+      console.log(calendar)
       if calendar is '---'
         items.push li({role: 'separator', class: 'divider'})
+      else if calendar.title?
+        items.push li('.dropdown-header', calendar.title)
+        for item in calendar.items
+          items.push create_li(item.id, item.name)
+          @calendars.push item
       else
-        # TODO: some replacement for this href
-        link = a({href:'javascript:;'}, calendar.name)
-        callback = @set_calendar
+        items.push create_li(calendar.id, calendar.name)
+        @calendars.push calendar
 
-        link.click do (id = calendar.id) ->
-          () ->
-            callback(id)
-
-        items.push li('', link)
 
     li('.dropdown',
       a({class:'dropdown-toggle', 'data-toggle': 'dropdown', role: 'button'},
@@ -407,7 +417,7 @@ class Calendar
         i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')
       ) )
 
-    dropdown = if @calendars? then @build_dropdown() else ''
+    dropdown = @build_calendars_list()
 
     text = ul('.nav.navbar-nav',
       dropdown, div('.navbar-text.mns-cal-date')

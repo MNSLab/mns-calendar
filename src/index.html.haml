@@ -77,11 +77,23 @@
                 parameterless: false
               },
               calendars: [
-                { name: 'TODO', id: 'type:todo' },
-                { name: 'FIXNOW', id: 'type:fix-now' },
-                { name: 'REQUEST', id: 'type:request' },
+                { name: 'All', id: 'all' },
                 '---',
-                { name: 'pkubiak', id: 'user:pkubiak' }
+                {
+                  title: 'by status',
+                  items: [
+                    { name: 'todo', id: 'type:todo' },
+                    { name: 'fixnow', id: 'type:fix-now' },
+                    { name: 'request', id: 'type:request' },
+                  ]
+                }
+                '---',
+                {
+                  title: 'by user',
+                  items: [
+                    { name: 'pkubiak', id: 'user:pkubiak' },
+                  ]
+                }
               ]
 
               callback: (label, event) ->

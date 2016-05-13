@@ -310,7 +310,7 @@
       },
       events: [],
       calendar: void 0,
-      calendars: void 0,
+      calendars: [],
       i18n: {
         lang: 'pl',
         translations: {
@@ -329,7 +329,6 @@
       this.today_month = bind(this.today_month, this);
       this.next_month = bind(this.next_month, this);
       this.prev_month = bind(this.prev_month, this);
-      var ref;
       this.options = $.extend({}, this.defaults, options);
       this.$el = $(el);
       this.today = moment().startOf('day');
@@ -337,14 +336,10 @@
       this.callback = this.options.callback;
       this.t = this.options['i18n']['translations'];
       this.max_slots = 4;
-      this.calendar_id = this.options.calendar;
-      this.calendars = this.options.calendars;
-      if ((this.calendars != null) && (this.calendar_id == null)) {
-        if ((ref = this.calendars[0]) != null) {
-          ref.id;
-        }
-      }
       this.setup_skeleton();
+      if (this.calendars != null) {
+        this.set_calendar(this.options.calendar);
+      }
       this.redraw();
     }
 
@@ -374,7 +369,7 @@
         results = [];
         for (m = 0, len1 = ref.length; m < len1; m++) {
           calendar = ref[m];
-          if (calendar.id === calendar_id) {
+          if (calendar.id === calendar_id || (calendar_id == null)) {
             this.calendar_id = calendar.id;
             this.calendar_name = calendar.name;
             this.redraw();
@@ -480,28 +475,44 @@
       }
     };
 
-    Calendar.prototype.build_dropdown = function() {
-      var calendar, callback, items, len1, link, m, ref;
+    Calendar.prototype.build_calendars_list = function() {
+      var calendar, callback, create_li, item, items, len1, len2, m, n, ref, ref1;
       items = [];
-      ref = this.calendars;
+      callback = this.set_calendar;
+      this.calendars = [];
+      if (this.options.calendars.length === 0) {
+        return '';
+      }
+      create_li = function(id, name) {
+        var link;
+        link = a({
+          href: 'javascript:;'
+        }, name);
+        link.click(function() {
+          return callback(id);
+        });
+        return li('', link);
+      };
+      ref = this.options.calendars;
       for (m = 0, len1 = ref.length; m < len1; m++) {
         calendar = ref[m];
+        console.log(calendar);
         if (calendar === '---') {
           items.push(li({
             role: 'separator',
             "class": 'divider'
           }));
+        } else if (calendar.title != null) {
+          items.push(li('.dropdown-header', calendar.title));
+          ref1 = calendar.items;
+          for (n = 0, len2 = ref1.length; n < len2; n++) {
+            item = ref1[n];
+            items.push(create_li(item.id, item.name));
+            this.calendars.push(item);
+          }
         } else {
-          link = a({
-            href: 'javascript:;'
-          }, calendar.name);
-          callback = this.set_calendar;
-          link.click((function(id) {
-            return function() {
-              return callback(id);
-            };
-          })(calendar.id));
-          items.push(li('', link));
+          items.push(create_li(calendar.id, calendar.name));
+          this.calendars.push(calendar);
         }
       }
       return li('.dropdown', a({
@@ -514,7 +525,7 @@
     Calendar.prototype.setup_skeleton = function() {
       var body, cal, dropdown, form, header, navbar, text;
       header = div('.navbar-header', div('.navbar-brand', i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')));
-      dropdown = this.calendars != null ? this.build_dropdown() : '';
+      dropdown = this.build_calendars_list();
       text = ul('.nav.navbar-nav', dropdown, div('.navbar-text.mns-cal-date'));
       form = div('.navbar-form.navbar-right', div('.btn-toolbar', div('.btn-group', a('.btn.btn-default.mns-cal-today', this.t['today'])), div('.btn-group', a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')), a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right')))));
       navbar = nav('.navbar.navbar-default', div('.container-fluid', header, text, form));
