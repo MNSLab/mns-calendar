@@ -72,7 +72,17 @@
           $ ->
             $('#calendar').MnsCalendar(
               title: 'MNS Calendar',
-              events: 'events.json',
+              events: {
+                url: 'events.json'
+                parameterless: false
+              },
+              calendars: [
+                { name: 'TODO', id: 'type:todo' },
+                { name: 'FIXNOW', id: 'type:fix-now' },
+                { name: 'REQUEST', id: 'type:request' },
+                '---',
+                { name: 'pkubiak', id: 'user:pkubiak' }
+              ]
 
               callback: (label, event) ->
                 $(label).popover

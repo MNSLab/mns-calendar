@@ -31,11 +31,18 @@ window.tag = (name, params...) ->
       obj.append(child)
   obj
 
+# tag helpers
+tags =  [
+  'div', 'strong', 'em', 'span', 'a', 'nav', 'i', # general
+  'table', 'th', 'tr', 'td', # tables
+  'ul', 'ol', 'li' #lists
+]
+
 # define shortcuts
-for tag_name in ['div', 'strong', 'em', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td', 'i']
-  ((s) ->
-    window[s] = (params...) -> tag(s, params...)
-  )(tag_name)
+for tag_name in tags
+  do (tag_name) ->
+    window[tag_name] = (params...) -> tag(tag_name, params...)
+
 
 window['nbsp'] = document.createTextNode(String.fromCharCode(160))
 
@@ -223,6 +230,9 @@ class Calendar
   defaults:
     title: 'MNS Calendar'
     callback: (link, event) -> console.log('Callback', link, event)
+    events: []
+    calendar: undefined
+    calendars: undefined
     i18n:
       lang: 'pl'
       translations:
@@ -254,6 +264,12 @@ class Calendar
     # Max number of slots displayed per day
     @max_slots = 4
 
+    # List of calendars
+    @calendar_id = @options.calendar
+    @calendars = @options.calendars
+    if @calendars? and not @calendar_id?
+      @calendars[0]?.id
+
     # Create HTML skeleton of the calendar
     @setup_skeleton()
 
@@ -276,30 +292,53 @@ class Calendar
     @current = moment(@today).startOf('month')
     @redraw()
 
+
+  # set currently displayed calendar
+  set_calendar: (calendar_id) =>
+    if @calendars?
+      console.log(@calendar_id, calendar_id)
+      for calendar in @calendars
+        if calendar.id is calendar_id
+          @calendar_id = calendar.id
+          @calendar_name = calendar.name
+          @redraw()
+          break
+
   # callbacks for loading JSON events
   load_json: (json) =>
     @events = (new Event(event, @callback) for event in json)
     @render()
 
+
   # get data from array or remote json
   load_events: () ->
-    console.log(@options.events)
     if Array.isArray @options.events
       # we've got a list of event
       @events = (new Event(event, @callback) for event in @options.events)
-    else
+    else if @options.events.url?
       # we've got a remote JSON
       @events = []
-      start_date = moment(@current).startOf('month').startOf('week')
-      end_date = moment(@current).endOf('month').endOf('week')
-      $.getJSON
-        url: @options.events
-        data:
+
+      # build request
+      request =
+        url: @options.events.url
+
+      # if server accept parameters
+      unless @options.events.parameterless
+        start_date = moment(@current).startOf('month').startOf('week')
+        end_date = moment(@current).endOf('month').endOf('week')
+
+        request['data'] =
           start_date: start_date.toISOString()
           end_date: end_date.toISOString()
-          calendar_id: null
+
+        request['data']['calendar_id'] = @calendar_id if @calendar_id?
+
+      # perform AJAX query
+      $.getJSON request
       .done @load_json
       .fail ( jqxhr, textStatus, error) ->
+        # TODO do something on error
         console.log(jqxhr, textStatus, error)
 
 
@@ -334,13 +373,46 @@ class Calendar
   update_header: () ->
     @$el.find('.mns-cal-title').text(@options['title'])
     @$el.find('.mns-cal-date').text(@current.format('MMMM YYYY'))
+    @$el.find('.mns-cal-calendar-name').text(@calendar_name) if @calendars?
+
+  build_dropdown: () ->
+    items = []
+
+    for calendar in @calendars
+      if calendar is '---'
+        items.push li({role: 'separator', class: 'divider'})
+      else
+        # TODO: some replacement for this href
+        link = a({href:'javascript:;'}, calendar.name)
+        callback = @set_calendar
+
+        link.click do (id = calendar.id) ->
+          () ->
+            callback(id)
+
+        items.push li('', link)
+
+    li('.dropdown',
+      a({class:'dropdown-toggle', 'data-toggle': 'dropdown', role: 'button'},
+        span('.mns-cal-calendar-name'), ' '
+        span('.caret')
+      ), ul('.dropdown-menu', items)
+    )
+
 
   # Create HTML skeleton of calendar
   setup_skeleton: () ->
     header = div('.navbar-header',
       div('.navbar-brand',
         i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')
-      ), div('.navbar-text.mns-cal-date') )
+      ) )
+
+    dropdown = if @calendars? then @build_dropdown() else ''
+
+    text = ul('.nav.navbar-nav',
+      dropdown, div('.navbar-text.mns-cal-date')
+    )
+
 
     form = div('.navbar-form.navbar-right',
       div('.btn-toolbar',
@@ -351,7 +423,7 @@ class Calendar
         )
       ) )
     navbar = nav('.navbar.navbar-default',
-      div('.container-fluid', header, form) )
+      div('.container-fluid', header, text, form) )
 
     # TODO: display week days names
 

@@ -31,10 +31,17 @@ window.tag = (name, params...) ->
       obj.append(child)
   obj
 
+# tag helpers
+tags =  [
+  'div', 'strong', 'em', 'span', 'a', 'nav', 'i', # general
+  'table', 'th', 'tr', 'td', # tables
+  'ul', 'ol', 'li' #lists
+]
+
 # define shortcuts
-for tag_name in ['div', 'strong', 'em', 'span', 'a', 'nav', 'table', 'th', 'tr', 'td', 'i']
-  ((s) ->
-    window[s] = (params...) -> tag(s, params...)
-  )(tag_name)
+for tag_name in tags
+  do (tag_name) ->
+    window[tag_name] = (params...) -> tag(tag_name, params...)
+
 
 window['nbsp'] = document.createTextNode(String.fromCharCode(160))
