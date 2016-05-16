@@ -340,6 +340,8 @@
       if (this.calendars != null) {
         this.set_calendar(this.options.calendar);
       }
+      this.events = [];
+      this.render();
       this.redraw();
     }
 
@@ -393,13 +395,14 @@
         }
         return results;
       }).call(this);
-      return this.render();
+      this.render();
+      return this.$el.find('.mns-cal-body').removeClass('data-loading');
     };
 
     Calendar.prototype.load_events = function() {
       var data, end_date, event, start_date, url;
       if (Array.isArray(this.options.events)) {
-        return this.events = (function() {
+        this.events = (function() {
           var len1, m, ref, results;
           ref = this.options.events;
           results = [];
@@ -409,8 +412,8 @@
           }
           return results;
         }).call(this);
+        return this.render();
       } else if (this.options.events.url != null) {
-        this.events = [];
         url = this.options.events.url;
         data = {};
         if (!this.options.events.parameterless) {
@@ -425,7 +428,7 @@
           }
         }
         return $.getJSON(url, data).done(this.load_json).fail(function(jqxhr, textStatus, error) {
-          return console.log(jqxhr, textStatus, error);
+          return alert(jqxhr, textStatus, error);
         });
       }
     };
@@ -458,8 +461,7 @@
     };
 
     Calendar.prototype.redraw = function() {
-      this.load_events();
-      return this.render();
+      return this.load_events();
     };
 
     Calendar.prototype.update = function() {

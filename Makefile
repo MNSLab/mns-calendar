@@ -1,11 +1,12 @@
 .PHONY: coffee haml sass docs
+COFFEE_BIN=/usr/bin/coffee
 
 all: coffee haml sass docs
 
 coffee: dist/mns_calendar.js
 
 dist/mns_calendar.js: src/mns_calendar.coffee src/coffee/*.coffee
-	coffee --map --compile --output ./dist ./src/mns_calendar.coffee
+	$(COFFEE_BIN) --map --compile --output ./dist ./src/mns_calendar.coffee
 
 src/mns_calendar.coffee: src/coffee/*.coffee
 	coffeescript-concat -I ./src/coffee -o ./src/mns_calendar.coffee

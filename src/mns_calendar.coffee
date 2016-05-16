@@ -270,6 +270,10 @@ class Calendar
     # Set default calendar
     @set_calendar(@options.calendar) if @calendars?
 
+    # render empty grid
+    @events = []
+    @render()
+
     # Load events data from config and render
     @redraw()
 
@@ -306,6 +310,7 @@ class Calendar
   load_json: (json) =>
     @events = (new Event(event, @callback) for event in json)
     @render()
+    @$el.find('.mns-cal-body').removeClass('data-loading')
 
 
   # get data from array or remote json
@@ -313,9 +318,14 @@ class Calendar
     if Array.isArray @options.events
       # we've got a list of event
       @events = (new Event(event, @callback) for event in @options.events)
+      @render()
+
     else if @options.events.url?
+      # show spinner
+      #@$el.find('.mns-cal-body').addClass('data-loading')
+
       # we've got a remote JSON
-      @events = []
+      #@events = []
 
       # request url
       url = @options.events.url
@@ -336,8 +346,9 @@ class Calendar
       $.getJSON(url, data)
       .done @load_json
       .fail ( jqxhr, textStatus, error) ->
-        # TODO do something on error
-        console.log(jqxhr, textStatus, error)
+        # TODO do something with errors
+        #console.log(jqxhr, textStatus, error)
+        alert(jqxhr, textStatus, error)
 
 
   # update skeleton
@@ -363,7 +374,6 @@ class Calendar
   # update settings
   redraw: () ->
     @load_events()
-    @render()
 
   update: () ->
     undefined

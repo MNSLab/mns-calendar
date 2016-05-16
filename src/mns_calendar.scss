@@ -1,3 +1,13 @@
+@import "compass/css3/transform";
+
+@keyframes mns-spin{
+	0%{
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+	100%{
+		transform: translate(-50%, -50%) rotate(359deg);
+	}
+}
 .mns-cal {
 	& > .navbar {
 		border-bottom: 0;
@@ -20,6 +30,42 @@
 	}
 
 	.mns-cal-body {
+		position: relative;
+
+		/* show white background */
+		&.data-loading::before {
+			background: white;
+			content: "";
+			position:absolute;
+			display:block;
+			left:0;right:0;
+			top:0;bottom:0;
+			opacity: 0.7;
+			z-index:500;
+		}
+
+		/* show spinner */
+		&.data-loading::after {
+			font: normal normal normal 14px/1 FontAwesome;
+			text-rendering: auto;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			display: block;
+			content: "\f021";
+			color:black;
+			width: 100px;
+			height: 100px;
+			line-height:100px;
+			text-align:center;
+			color:#444;
+			position: absolute;
+			left: 50%;top:50%;
+			z-index:501;
+			font-size:60px;
+
+			//@include translate(-50%, -50%);
+			animation: mns-spin 0.5s infinite linear;
+		}
 
 		table {
 			width: 100%;

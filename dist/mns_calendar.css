@@ -1,91 +1,139 @@
-/* line 2, ../src/mns_calendar.scss */
+@keyframes mns-spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(359deg);
+  }
+}
+/* line 12, ../src/mns_calendar.scss */
 .mns-cal > .navbar {
   border-bottom: 0;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   margin-bottom: 0;
 }
-/* line 8, ../src/mns_calendar.scss */
+/* line 18, ../src/mns_calendar.scss */
 .mns-cal > .panel {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-/* line 13, ../src/mns_calendar.scss */
+/* line 23, ../src/mns_calendar.scss */
 .mns-cal table label {
   display: block;
   text-align: left;
 }
-/* line 18, ../src/mns_calendar.scss */
+/* line 28, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-week {
   position: relative;
 }
-/* line 24, ../src/mns_calendar.scss */
+/* line 32, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body {
+  position: relative;
+  /* show white background */
+  /* show spinner */
+}
+/* line 36, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body.data-loading::before {
+  background: white;
+  content: "";
+  position: absolute;
+  display: block;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0.7;
+  z-index: 500;
+}
+/* line 48, ../src/mns_calendar.scss */
+.mns-cal .mns-cal-body.data-loading::after {
+  font: normal normal normal 14px/1 FontAwesome;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: block;
+  content: "\f021";
+  color: black;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  text-align: center;
+  color: #444;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 501;
+  font-size: 60px;
+  animation: mns-spin 0.5s infinite linear;
+}
+/* line 70, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-body table {
   width: 100%;
   table-layout: fixed;
   margin: 0;
 }
-/* line 28, ../src/mns_calendar.scss */
+/* line 74, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-body table td {
   border-top-width: 0;
   border-bottom-width: 0;
   padding: 0px;
   height: 1em;
 }
-/* line 34, ../src/mns_calendar.scss */
+/* line 80, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-body table td:first-child {
   border-left-width: 0;
 }
-/* line 37, ../src/mns_calendar.scss */
+/* line 83, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-body table td:last-child {
   border-right-width: 0;
 }
-/* line 44, ../src/mns_calendar.scss */
+/* line 90, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-bg {
   position: absolute;
   z-index: 0;
   height: 100%;
   width: 100%;
 }
-/* line 49, ../src/mns_calendar.scss */
+/* line 95, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-bg table {
   height: 100%;
 }
-/* line 53, ../src/mns_calendar.scss */
+/* line 99, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-bg-today {
   opacity: 0.3;
 }
-/* line 57, ../src/mns_calendar.scss */
+/* line 103, ../src/mns_calendar.scss */
 .mns-cal td:not(.mns-cal-starts-here) .label {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-/* line 61, ../src/mns_calendar.scss */
+/* line 107, ../src/mns_calendar.scss */
 .mns-cal td:not(.mns-cal-ends-here) .label {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-/* line 66, ../src/mns_calendar.scss */
+/* line 112, ../src/mns_calendar.scss */
 .mns-cal td.mns-cal-starts-here .label {
   margin-left: 6px;
 }
-/* line 67, ../src/mns_calendar.scss */
+/* line 113, ../src/mns_calendar.scss */
 .mns-cal td.mns-cal-ends-here .label {
   margin-right: 6px;
 }
-/* line 69, ../src/mns_calendar.scss */
+/* line 115, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows {
   position: relative;
   z-index: 1;
 }
-/* line 72, ../src/mns_calendar.scss */
+/* line 118, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows th {
   text-align: right;
   font-weight: normal;
   padding: 2px;
   padding-right: 4px;
 }
-/* line 78, ../src/mns_calendar.scss */
+/* line 124, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows .label {
   display: block;
   text-align: left;
@@ -94,7 +142,7 @@
   overflow: hidden;
   text-decoration: none;
 }
-/* line 86, ../src/mns_calendar.scss */
+/* line 132, ../src/mns_calendar.scss */
 .mns-cal .mns-cal-rows .label:hover {
   opacity: 0.8;
 }
