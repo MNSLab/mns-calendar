@@ -397,7 +397,7 @@
     };
 
     Calendar.prototype.load_events = function() {
-      var end_date, event, request, start_date;
+      var data, end_date, event, start_date, url;
       if (Array.isArray(this.options.events)) {
         return this.events = (function() {
           var len1, m, ref, results;
@@ -411,21 +411,20 @@
         }).call(this);
       } else if (this.options.events.url != null) {
         this.events = [];
-        request = {
-          url: this.options.events.url
-        };
+        url = this.options.events.url;
+        data = {};
         if (!this.options.events.parameterless) {
           start_date = moment(this.current).startOf('month').startOf('week');
           end_date = moment(this.current).endOf('month').endOf('week');
-          request['data'] = {
+          data = {
             start_date: start_date.toISOString(),
             end_date: end_date.toISOString()
           };
           if (this.calendar_id != null) {
-            request['data']['calendar_id'] = this.calendar_id;
+            data['calendar_id'] = this.calendar_id;
           }
         }
-        return $.getJSON(request).done(this.load_json).fail(function(jqxhr, textStatus, error) {
+        return $.getJSON(url, data).done(this.load_json).fail(function(jqxhr, textStatus, error) {
           return console.log(jqxhr, textStatus, error);
         });
       }

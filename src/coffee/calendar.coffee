@@ -40,7 +40,7 @@ class Calendar
 
     # Max number of slots displayed per day
     @max_slots = 4
-    
+
     # Create HTML skeleton of the calendar and parse calendar list
     @setup_skeleton()
 
@@ -94,23 +94,23 @@ class Calendar
       # we've got a remote JSON
       @events = []
 
-      # build request
-      request =
-        url: @options.events.url
+      # request url
+      url = @options.events.url
 
+      data = {}
       # if server accept parameters
       unless @options.events.parameterless
         start_date = moment(@current).startOf('month').startOf('week')
         end_date = moment(@current).endOf('month').endOf('week')
 
-        request['data'] =
+        data =
           start_date: start_date.toISOString()
           end_date: end_date.toISOString()
 
-        request['data']['calendar_id'] = @calendar_id if @calendar_id?
+        data['calendar_id'] = @calendar_id if @calendar_id?
 
       # perform AJAX query
-      $.getJSON request
+      $.getJSON(url, data)
       .done @load_json
       .fail ( jqxhr, textStatus, error) ->
         # TODO do something on error
