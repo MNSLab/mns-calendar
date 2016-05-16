@@ -7,6 +7,7 @@ class Calendar
   defaults:
     title: 'MNS Calendar'
     callback: (link, event) -> console.log('Callback', link, event)
+    weekdays_names: true
     events: []
     calendar: undefined
     calendars: []
@@ -100,9 +101,6 @@ class Calendar
       # TODO: show spinner
       #@$el.find('.mns-cal-body').addClass('data-loading')
 
-      # we've got a remote JSON
-      #@events = []
-
       # request url
       url = @options.events.url
 
@@ -132,6 +130,8 @@ class Calendar
     @update_header()
     rows = []
 
+
+
     day = moment(@current).startOf('month').startOf('week')
 
     while(day.isSameOrBefore(@current, 'month'))
@@ -144,6 +144,7 @@ class Calendar
 
     body = @$el.find('.mns-cal-body')
     body.empty()
+    body.append @build_weekdays_header()  if @options.weekdays_names
     for row in rows
       body.append row.render()
 
@@ -195,6 +196,14 @@ class Calendar
       ), ul('.dropdown-menu', items)
     )
 
+  # Create HTML table with weekdays names
+  build_weekdays_header: () ->
+    days = ( th('', day) for day in moment.weekdays() )
+    div('',
+      table('.table.table-condensed.table-bordered.text-center',
+        tr('.mns-cal-row-header', days)
+    ))
+
 
   # Create HTML skeleton of calendar
   setup_skeleton: () ->
@@ -208,7 +217,6 @@ class Calendar
     text = ul('.nav.navbar-nav',
       dropdown, div('.navbar-text.mns-cal-date')
     )
-
 
     form = div('.navbar-form.navbar-right',
       div('.btn-toolbar',

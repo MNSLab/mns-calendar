@@ -308,6 +308,7 @@
       callback: function(link, event) {
         return console.log('Callback', link, event);
       },
+      weekdays_names: false,
       events: [],
       calendar: void 0,
       calendars: [],
@@ -395,8 +396,7 @@
         }
         return results;
       }).call(this);
-      this.render();
-      return this.$el.find('.mns-cal-body').removeClass('data-loading');
+      return this.render();
     };
 
     Calendar.prototype.load_events = function() {
@@ -452,6 +452,9 @@
       }
       body = this.$el.find('.mns-cal-body');
       body.empty();
+      if (this.options.weekdays_names) {
+        body.append(this.build_weekdays_header());
+      }
       results = [];
       for (o = 0, len3 = rows.length; o < len3; o++) {
         row = rows[o];
@@ -521,6 +524,21 @@
         'data-toggle': 'dropdown',
         role: 'button'
       }, span('.mns-cal-calendar-name'), ' ', span('.caret')), ul('.dropdown-menu', items));
+    };
+
+    Calendar.prototype.build_weekdays_header = function() {
+      var day, days;
+      days = (function() {
+        var len1, m, ref, results;
+        ref = moment.weekdays();
+        results = [];
+        for (m = 0, len1 = ref.length; m < len1; m++) {
+          day = ref[m];
+          results.push(th('', day));
+        }
+        return results;
+      })();
+      return div('', table('.table.table-condensed.table-bordered.text-center', tr('.mns-cal-row-header', days)));
     };
 
     Calendar.prototype.setup_skeleton = function() {
