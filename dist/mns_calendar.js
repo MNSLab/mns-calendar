@@ -4,11 +4,15 @@
     slice = [].slice,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+  window.instanceOf = function(obj, constructor) {
+    return (obj !== void 0) && obj.constructor === constructor;
+  };
+
   window.tag = function() {
     var attrs, child, id, k, klass, l, len, name, obj, params, sc, v;
     name = arguments[0], params = 2 <= arguments.length ? slice.call(arguments, 1) : [];
     obj = $("<" + name + ">");
-    if (typeof params[0] === 'string') {
+    if (instanceOf(params[0], String)) {
       sc = params.shift();
       klass = (sc.match(/\.[-_0-9a-z]+/gi) || []).join('').replace(/\./g, ' ').trim();
       id = ((sc.match(/\#[-_0-9a-z]+/gi) || [])[0] || '').slice(1);
@@ -17,12 +21,12 @@
         id: id === '' ? null : id
       });
     }
-    if (typeof params[0] === 'object' && params[0].constructor.name === 'Object') {
+    if (instanceOf(params[0], Object)) {
       attrs = params.shift();
-      if (Array.isArray(attrs['class'])) {
+      if (instanceOf(attrs['class'], Array)) {
         attrs['class'] = attrs['class'].join(' ');
       }
-      if (typeof attrs['style'] === 'object') {
+      if (instanceOf(attrs['style'], Object)) {
         attrs['style'] = ((function() {
           var ref, results;
           ref = attrs['style'];
@@ -38,7 +42,7 @@
     }
     for (l = 0, len = params.length; l < len; l++) {
       child = params[l];
-      if (typeof child === 'string') {
+      if (instanceOf(child, String)) {
         obj.append(document.createTextNode(child));
       } else {
         obj.append(child);
@@ -177,16 +181,15 @@
     };
 
     Row.prototype.render_slot = function(id) {
-      var day, i, klass, len1, m, obj, ref, res, type;
+      var day, i, klass, len1, m, obj, ref, res;
       res = [];
       ref = this.days;
       for (i = m = 0, len1 = ref.length; m < len1; i = ++m) {
         day = ref[i];
         obj = this.slots[i][id];
-        type = typeof obj;
         if (obj === true) {
           res.push(td({}, ''));
-        } else if (type === 'object') {
+        } else if (instanceOf(obj, Object)) {
           klass = [];
           if (obj.starts_here) {
             klass.push('mns-cal-starts-here');
@@ -305,10 +308,8 @@
 
     Calendar.prototype.defaults = {
       title: 'MNS Calendar',
-      callback: function(link, event) {
-        return console.log('Callback', link, event);
-      },
-      weekdays_names: false,
+      callback: void 0,
+      weekdays_names: true,
       events: [],
       calendar: void 0,
       calendars: [],
@@ -367,7 +368,6 @@
     Calendar.prototype.set_calendar = function(calendar_id) {
       var calendar, len1, m, ref, results;
       if (this.calendars != null) {
-        console.log(this.calendar_id, calendar_id);
         ref = this.calendars;
         results = [];
         for (m = 0, len1 = ref.length; m < len1; m++) {
@@ -500,7 +500,6 @@
       ref = this.options.calendars;
       for (m = 0, len1 = ref.length; m < len1; m++) {
         calendar = ref[m];
-        console.log(calendar);
         if (calendar === '---') {
           items.push(li({
             role: 'separator',

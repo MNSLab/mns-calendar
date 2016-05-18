@@ -1,10 +1,12 @@
+#=require <helpers.coffee>
+
 # helper function for buildin HTML layout
 # params = (shortcut, attrs, childs...)
 window.tag = (name, params...) ->
   obj = $("<#{name}>")
 
   # use shortcut
-  if typeof(params[0]) is 'string'
+  if instanceOf(params[0], String)
     sc = params.shift()
     klass = (sc.match(/\.[-_0-9a-z]+/gi)||[]).join('').replace(/\./g,' ').trim()
     id = ((sc.match(/\#[-_0-9a-z]+/gi)||[])[0] || '').slice(1)
@@ -14,18 +16,19 @@ window.tag = (name, params...) ->
       id: if id == '' then null else id
     )
 
+
   # set attributes
-  if typeof(params[0]) is 'object' and params[0].constructor.name is 'Object'
+  if instanceOf(params[0], Object)
     attrs = params.shift()
-    if Array.isArray attrs['class']
+    if instanceOf(attrs['class'], Array)
       attrs['class'] = attrs['class'].join ' '
-    if typeof attrs['style'] is 'object'
+    if instanceOf(attrs['style'], Object)
       attrs['style'] = ("#{k}:#{v}" for k,v of attrs['style']).join ';'
     obj.attr(attrs)
 
   # append content
   for child in params
-    if typeof(child) is 'string'
+    if instanceOf(child, String)
       obj.append(document.createTextNode(child))
     else
       obj.append(child)

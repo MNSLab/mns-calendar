@@ -1,3 +1,5 @@
+#= require<helpers.coffee>
+
 class Row
   constructor: (calendar, start_day) ->
     @current = calendar.current
@@ -5,7 +7,6 @@ class Row
 
     @callback = calendar.callback
     @today = calendar.today
-    # console.log('Kalendarz [wiersz]: ', @current, @today, @days)
 
     # generate empty slots
     @slot_count = calendar.max_slots
@@ -76,11 +77,10 @@ class Row
     res = []
     for day, i in @days
       obj = @slots[i][id]
-      type = typeof(obj)
 
       if obj is true
         res.push td({},'')
-      else if type is 'object'
+      else if instanceOf(obj, Object)
         klass = []
         klass.push 'mns-cal-starts-here' if obj.starts_here
         klass.push 'mns-cal-ends-here' if obj.ends_here

@@ -65,8 +65,6 @@ class Event
     content.push @name
     klass = ['label', 'label-primary']
 
-
-
     el = a({class: klass, role: 'button', tabindex: '0'}, content)
     el.css('color', @color) if @color?
     el.css('background', @background) if @background?

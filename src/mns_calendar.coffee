@@ -1,10 +1,17 @@
+# Cross platform check for direct instanceOf
+#  eg. instanceOf('abc', String) == true, instanceOf('', Object)
+window.instanceOf = (obj, constructor) ->
+  (obj != undefined) and (obj).constructor == constructor
+
+
+
 # helper function for buildin HTML layout
 # params = (shortcut, attrs, childs...)
 window.tag = (name, params...) ->
   obj = $("<#{name}>")
 
   # use shortcut
-  if typeof(params[0]) is 'string'
+  if instanceOf(params[0], String)
     sc = params.shift()
     klass = (sc.match(/\.[-_0-9a-z]+/gi)||[]).join('').replace(/\./g,' ').trim()
     id = ((sc.match(/\#[-_0-9a-z]+/gi)||[])[0] || '').slice(1)
@@ -14,18 +21,19 @@ window.tag = (name, params...) ->
       id: if id == '' then null else id
     )
 
+
   # set attributes
-  if typeof(params[0]) is 'object' and params[0].constructor.name is 'Object'
+  if instanceOf(params[0], Object)
     attrs = params.shift()
-    if Array.isArray attrs['class']
+    if instanceOf(attrs['class'], Array)
       attrs['class'] = attrs['class'].join ' '
-    if typeof attrs['style'] is 'object'
+    if instanceOf(attrs['style'], Object)
       attrs['style'] = ("#{k}:#{v}" for k,v of attrs['style']).join ';'
     obj.attr(attrs)
 
   # append content
   for child in params
-    if typeof(child) is 'string'
+    if instanceOf(child, String)
       obj.append(document.createTextNode(child))
     else
       obj.append(child)
@@ -46,6 +54,8 @@ for tag_name in tags
 
 window['nbsp'] = document.createTextNode(String.fromCharCode(160))
 
+#= require<helpers.coffee>
+
 class Row
   constructor: (calendar, start_day) ->
     @current = calendar.current
@@ -53,7 +63,6 @@ class Row
 
     @callback = calendar.callback
     @today = calendar.today
-    # console.log('Kalendarz [wiersz]: ', @current, @today, @days)
 
     # generate empty slots
     @slot_count = calendar.max_slots
@@ -124,11 +133,10 @@ class Row
     res = []
     for day, i in @days
       obj = @slots[i][id]
-      type = typeof(obj)
 
       if obj is true
         res.push td({},'')
-      else if type is 'object'
+      else if instanceOf(obj, Object)
         klass = []
         klass.push 'mns-cal-starts-here' if obj.starts_here
         klass.push 'mns-cal-ends-here' if obj.ends_here
@@ -212,8 +220,6 @@ class Event
     content.push @name
     klass = ['label', 'label-primary']
 
-
-
     el = a({class: klass, role: 'button', tabindex: '0'}, content)
     el.css('color', @color) if @color?
     el.css('background', @background) if @background?
@@ -229,8 +235,8 @@ class Calendar
   prefix = 'mns-cal'
   defaults:
     title: 'MNS Calendar'
-    callback: (link, event) -> console.log('Callback', link, event)
-    weekdays_names: false
+    callback: undefined
+    weekdays_names: true
     events: []
     calendar: undefined
     calendars: []
@@ -298,7 +304,6 @@ class Calendar
   # set currently displayed calendar
   set_calendar: (calendar_id) =>
     if @calendars?
-      console.log(@calendar_id, calendar_id)
       for calendar in @calendars
         if calendar.id is calendar_id or not calendar_id?
           @calendar_id = calendar.id
@@ -344,7 +349,6 @@ class Calendar
       .done @load_json
       .fail ( jqxhr, textStatus, error) ->
         # TODO do something with errors
-        #console.log(jqxhr, textStatus, error)
         alert(jqxhr, textStatus, error)
 
 
@@ -399,7 +403,6 @@ class Calendar
       li('', link)
 
     for calendar in @options.calendars
-      console.log(calendar)
       if calendar is '---'
         items.push li({role: 'separator', class: 'divider'})
       else if calendar.title?

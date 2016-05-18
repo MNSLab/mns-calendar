@@ -6,7 +6,7 @@ class Calendar
   prefix = 'mns-cal'
   defaults:
     title: 'MNS Calendar'
-    callback: (link, event) -> console.log('Callback', link, event)
+    callback: undefined
     weekdays_names: true
     events: []
     calendar: undefined
@@ -75,7 +75,6 @@ class Calendar
   # set currently displayed calendar
   set_calendar: (calendar_id) =>
     if @calendars?
-      console.log(@calendar_id, calendar_id)
       for calendar in @calendars
         if calendar.id is calendar_id or not calendar_id?
           @calendar_id = calendar.id
@@ -121,7 +120,6 @@ class Calendar
       .done @load_json
       .fail ( jqxhr, textStatus, error) ->
         # TODO do something with errors
-        #console.log(jqxhr, textStatus, error)
         alert(jqxhr, textStatus, error)
 
 
@@ -176,7 +174,6 @@ class Calendar
       li('', link)
 
     for calendar in @options.calendars
-      console.log(calendar)
       if calendar is '---'
         items.push li({role: 'separator', class: 'divider'})
       else if calendar.title?
