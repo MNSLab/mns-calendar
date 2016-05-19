@@ -50,6 +50,14 @@ class Event
   overlap_day: (day) ->
     day.isSameOrAfter(@start, 'day') and day.isSameOrBefore(@end, 'day')
 
+  # check if this event overlap given time range
+  #  range[---(--]----)event
+  overlap_range: (from, end) ->
+    from.isSameOrBefore(@end, 'day') and end.isSameOrAfter(@start, 'day')
+
+  # Check if object is event
+  is_event: () ->
+    true
   # create html tag for this event
   render_as_label: =>
     content = []

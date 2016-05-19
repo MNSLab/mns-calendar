@@ -1,3 +1,86 @@
+##
+# EventSource parsing events from remote JSON file
+# options:
+#   calendar: overide calendar_id of all events
+#   paremeterless: if data source support quering for date range and calendar_id
+#   url: url of remote data source
+class JSONEventSource
+  constructor: (options, @data_callback, @event_callback) ->
+    @calendar = options.calendar
+    @parameterless = options.parameterless
+    @url = options.url
+
+
+  ##
+  # Return event overlaping given period [start, end] in given calendar
+  #  if calendar == null then match any event
+  #  token must be resend via callback
+  fetch:(start, end, calendar, token) =>
+    results = []
+
+    if @calendar? and @calendar isnt calendar
+      @callback(token, [])
+    else
+      data = {}
+      # if server accept parameters
+      unless @parameterless
+        data =
+          start_date: start.toISOString()
+          end_date: end.toISOString()
+
+        calendar =
+        data['calendar_id'] = calendar unless @calendar?
+
+      # perform AJAX query
+      data_callback = @data_callback
+      event_callback = @event_callback
+      
+      $.getJSON(@url, data)
+      .done (json) ->
+        data_callback(token, (new Event(event, event_callback) for event in json))
+      .fail ( jqxhr, textStatus, error) ->
+        # TODO do something with errors
+        alert(jqxhr, textStatus, error)
+        # complete request without data
+        callback(token, [])
+
+class ArrayEventSource
+  constructor: (options, @data_callback, @event_callback) ->
+    @events = (new Event(event, @event_callback) for event in (options.data || []))
+    @calendar = options.calendar
+
+  ##
+  # Return event overlaping given period [start, end] in given calendar
+  #  if calendar == null then match any event
+  #  token must be resend via callback
+  fetch: (start, end, calendar, token) =>
+    results = []
+
+    p = (not calendar?) or (@calendar? and @calendar is calendar)
+    if p or (not @calendar?)
+      for event in @events
+        if (p or (not event.calendar?) or (event.calendar is calendar)) and event.overlap_range(start, end)
+          results.push event
+
+    # send back events
+    @data_callback(token, results)
+
+
+class FunctionEventSource extends ArrayEventSource
+  constructor: (options, data_callback, event_callback) ->
+    @function = options.function
+    delete options.data
+    delete options.functon
+
+    super(options, data_callback, event_callback)
+    @events = []
+
+  fetch: (start, end, calendar, token) ->
+    events = @function(start, end, calendar)
+    @events = (new Event(event, @event_callback) for event in events)
+
+    super(start, end, calendar, token)
+
 # Cross platform check for direct instanceOf
 #  eg. instanceOf('abc', String) == true, instanceOf('', Object)
 window.instanceOf = (obj, constructor) ->
@@ -205,6 +288,14 @@ class Event
   overlap_day: (day) ->
     day.isSameOrAfter(@start, 'day') and day.isSameOrBefore(@end, 'day')
 
+  # check if this event overlap given time range
+  #  range[---(--]----)event
+  overlap_range: (from, end) ->
+    from.isSameOrBefore(@end, 'day') and end.isSameOrAfter(@start, 'day')
+
+  # Check if object is event
+  is_event: () ->
+    true
   # create html tag for this event
   render_as_label: =>
     content = []
@@ -274,21 +365,23 @@ class Calendar
     # Create HTML skeleton of the calendar and parse calendar list
     @setup_skeleton()
 
-    # Set default calendar
-    @set_calendar(@options.calendar) if @calendars?
+    # Setup event sources
+    @bootstrap_event_sources(options.events)
 
     # render empty grid
-    @events = []
     @render()
 
     # Load events data from config and render
-    @redraw()
+    if @calendars?
+      @set_calendar(@options.calendar)
+    else
+      @refetch()
 
 
   # Time manipulation routines:
   change_month: (diff) ->
     @current.add(diff, 'month')
-    @redraw()
+    @refetch()
 
   prev_month: () =>
     @change_month -1
@@ -298,7 +391,7 @@ class Calendar
 
   today_month: () =>
     @current = moment(@today).startOf('month')
-    @redraw()
+    @refetch()
 
 
   # set currently displayed calendar
@@ -308,56 +401,56 @@ class Calendar
         if calendar.id is calendar_id or not calendar_id?
           @calendar_id = calendar.id
           @calendar_name = calendar.name
-          @redraw()
+          @refetch()
           break
 
+  # Create EventSources
+  bootstrap_event_sources: (sources) ->
+    @events = []
+    @event_sources = []
 
-  # callbacks for loading JSON events
-  load_json: (json) =>
-    @events = (new Event(event, @callback) for event in json)
+    for source in sources
+      obj = EventSourceFactory.new(source, @fetch_events_callback, @callback)
+      @event_sources.push obj if obj?
+
+
+  fetch_events: () ->
+    start_date = moment(@current).startOf('month').startOf('week')
+    end_date = moment(@current).endOf('month').endOf('week')
+
+    @pending_event_sources = []
+    @events = []
+    tokens = []
+    for source in @event_sources
+      token = Math.random()
+      @pending_event_sources.push token
+      tokens.push token
+
+    for source in @event_sources
+      source.fetch(start_date, end_date, @calendar_id, tokens.pop())
+
+  # executed after all EventSources completed work
+  fetch_events_completed: () =>
+    #TODO: disable spinner
+    #TODO: disable timmer
     @render()
 
 
-  # get data from array or remote json
-  load_events: () ->
-    if Array.isArray @options.events
-      # we've got a list of event
-      @events = (new Event(event, @callback) for event in @options.events)
-      @render()
+  # each EventSource should invoke this callback after data collecting
+  fetch_events_callback: (token, results) =>
+    index = @pending_event_sources.indexOf token
 
-    else if @options.events.url?
-      # TODO: show spinner
-      #@$el.find('.mns-cal-body').addClass('data-loading')
-
-      # request url
-      url = @options.events.url
-
-      data = {}
-      # if server accept parameters
-      unless @options.events.parameterless
-        start_date = moment(@current).startOf('month').startOf('week')
-        end_date = moment(@current).endOf('month').endOf('week')
-
-        data =
-          start_date: start_date.toISOString()
-          end_date: end_date.toISOString()
-
-        data['calendar_id'] = @calendar_id if @calendar_id?
-
-      # perform AJAX query
-      $.getJSON(url, data)
-      .done @load_json
-      .fail ( jqxhr, textStatus, error) ->
-        # TODO do something with errors
-        alert(jqxhr, textStatus, error)
+    if index isnt -1
+      @pending_event_sources.splice(index, 1)
+      Array.prototype.push.apply @events, results
+      if @pending_event_sources.length is 0
+        @fetch_events_completed()
 
 
   # update skeleton
   render: () ->
     @update_header()
     rows = []
-
-
 
     day = moment(@current).startOf('month').startOf('week')
 
@@ -376,8 +469,8 @@ class Calendar
       body.append row.render()
 
   # update settings
-  redraw: () ->
-    @load_events()
+  refetch: () =>
+    @fetch_events()
 
   update: () ->
     undefined
@@ -491,4 +584,28 @@ class Calendar
 #       i('.fa.fa-birthday-cake'), ' MNS Lab'
 #     )
 #   )
+
+#=require <event_sources/array>
+
+#
+# class EventSourceInterface
+#   fetch_for_date: (from, to) ->
+#     # return events in given time range
+#
+#
+
+##
+# EventSources factory:
+#  e.g. EventSource.new {type: 'arrray', data: [{..}, {..}, {..}] }
+class EventSourceFactory
+  @types =
+    json: JSONEventSource
+    array: ArrayEventSource
+    function: FunctionEventSource
+
+  @new: (options, data_callback, label_callback) ->
+    @constructor = @types[options.type]
+    return null unless @constructor?
+    delete options['type']
+    return new @constructor(options, data_callback, label_callback)
 

@@ -13,6 +13,8 @@
     %script{ src: 'dist/mns_calendar.js' }
     %script{ src: 'https://rawgit.com/aFarkas/html5shiv/master/src/html5shiv.js' }
     %script{ src: 'https://buttons.github.io/buttons.js' }
+    %script{ src: 'https://code.angularjs.org/1.5.5/angular.min.js' }
+    %script{ src: 'dist/mns-calendar.angular.js' }
   %body
     %div.container-fluid{style: 'margin-top:50px'}
       %div.col-md-4
@@ -69,16 +71,59 @@
               })
 
       %div.col-md-8
+        %h3 AngularJS Example
+
+        %div{'ng-app': 'test-app'}
+          %input{'ng-model': 'tekst' }
+          %button{'ng-click': 'events=events+[1]'} dodaj
+          %mns-calendar{events: 'events'}
+
+        :coffee
+          app = angular.module 'test-app', ['mnsCalendar']
+          .controller 'mainCtrl', () ->
+            $scope.events = []
+
+        %h3 jQuery Example
         %div#calendar
 
         :coffee
           $ ->
             $('#calendar').MnsCalendar(
               title: 'MNS Calendar',
-              events: {
-                url: 'events.json'
-                parameterless: false
+              events: [{
+                type: 'array'
+                calendar: 'type:todo'
+                data: [{
+                  "name": "TODO",
+                  "start": "2016-05-19",
+                  "day_long": true,
+                  "icon": "warning",
+                  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.",
+                  "backgroundColor": "green",
+                  "textColor": "white"
+                },{
+                  name: 'Event :)',
+                  start: '2016-05-20',
+                  backgroundColor: 'gold',
+                  textColor: 'brown'
+                }]
               },
+              {
+                type: 'json'
+                url: 'events.json'
+                },
+              {
+                type: 'function'
+                function: (start, end, calendar) ->
+                  [{
+                    name: ''+Math.random(),
+                    start: '2016-05-'+Math.round(30*Math.random()+1),
+                    backgroundColor: 'gold',
+                    textColor: 'brown'
+                  }]
+              }
+              ],
+
               calendars: [
                 { name: 'All', id: 'all' },
                 '---',

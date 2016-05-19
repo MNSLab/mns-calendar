@@ -12,6 +12,8 @@
     <script src='dist/mns_calendar.js'></script>
     <script src='https://rawgit.com/aFarkas/html5shiv/master/src/html5shiv.js'></script>
     <script src='https://buttons.github.io/buttons.js'></script>
+    <script src='https://code.angularjs.org/1.5.5/angular.min.js'></script>
+    <script src='dist/mns-calendar.angular.js'></script>
   </head>
   <body>
     <div class='container-fluid' style='margin-top:50px'>
@@ -84,16 +86,66 @@
         </div>
       </div>
       <div class='col-md-8'>
+        <h3>AngularJS Example</h3>
+        <div ng-app='test-app'>
+          <input ng-model='tekst'>
+          <button ng-click='events=events+[1]'>dodaj</button>
+          <mns-calendar events='events'></mns-calendar>
+        </div>
+        <script>
+          (function() {
+            var app;
+          
+            app = angular.module('test-app', ['mnsCalendar']).controller('mainCtrl', function() {
+              return $scope.events = [];
+            });
+          
+          }).call(this);
+        </script>
+        <h3>jQuery Example</h3>
         <div id='calendar'></div>
         <script>
           (function() {
             $(function() {
               return $('#calendar').MnsCalendar({
                 title: 'MNS Calendar',
-                events: {
-                  url: 'events.json',
-                  parameterless: false
-                },
+                events: [
+                  {
+                    type: 'array',
+                    calendar: 'type:todo',
+                    data: [
+                      {
+                        "name": "TODO",
+                        "start": "2016-05-19",
+                        "day_long": true,
+                        "icon": "warning",
+                        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.",
+                        "backgroundColor": "green",
+                        "textColor": "white"
+                      }, {
+                        name: 'Event :)',
+                        start: '2016-05-20',
+                        backgroundColor: 'gold',
+                        textColor: 'brown'
+                      }
+                    ]
+                  }, {
+                    type: 'json',
+                    url: 'events.json'
+                  }, {
+                    type: 'function',
+                    "function": function(start, end, calendar) {
+                      return [
+                        {
+                          name: '' + Math.random(),
+                          start: '2016-05-' + Math.round(30 * Math.random() + 1),
+                          backgroundColor: 'gold',
+                          textColor: 'brown'
+                        }
+                      ];
+                    }
+                  }
+                ],
                 calendars: [
                   {
                     name: 'All',

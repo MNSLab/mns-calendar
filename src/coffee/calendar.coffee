@@ -45,21 +45,23 @@ class Calendar
     # Create HTML skeleton of the calendar and parse calendar list
     @setup_skeleton()
 
-    # Set default calendar
-    @set_calendar(@options.calendar) if @calendars?
+    # Setup event sources
+    @bootstrap_event_sources(options.events)
 
     # render empty grid
-    @events = []
     @render()
 
     # Load events data from config and render
-    @redraw()
+    if @calendars?
+      @set_calendar(@options.calendar)
+    else
+      @refetch()
 
 
   # Time manipulation routines:
   change_month: (diff) ->
     @current.add(diff, 'month')
-    @redraw()
+    @refetch()
 
   prev_month: () =>
     @change_month -1
@@ -69,7 +71,7 @@ class Calendar
 
   today_month: () =>
     @current = moment(@today).startOf('month')
-    @redraw()
+    @refetch()
 
 
   # set currently displayed calendar
@@ -79,56 +81,56 @@ class Calendar
         if calendar.id is calendar_id or not calendar_id?
           @calendar_id = calendar.id
           @calendar_name = calendar.name
-          @redraw()
+          @refetch()
           break
 
+  # Create EventSources
+  bootstrap_event_sources: (sources) ->
+    @events = []
+    @event_sources = []
 
-  # callbacks for loading JSON events
-  load_json: (json) =>
-    @events = (new Event(event, @callback) for event in json)
+    for source in sources
+      obj = EventSourceFactory.new(source, @fetch_events_callback, @callback)
+      @event_sources.push obj if obj?
+
+
+  fetch_events: () ->
+    start_date = moment(@current).startOf('month').startOf('week')
+    end_date = moment(@current).endOf('month').endOf('week')
+
+    @pending_event_sources = []
+    @events = []
+    tokens = []
+    for source in @event_sources
+      token = Math.random()
+      @pending_event_sources.push token
+      tokens.push token
+
+    for source in @event_sources
+      source.fetch(start_date, end_date, @calendar_id, tokens.pop())
+
+  # executed after all EventSources completed work
+  fetch_events_completed: () =>
+    #TODO: disable spinner
+    #TODO: disable timmer
     @render()
 
 
-  # get data from array or remote json
-  load_events: () ->
-    if Array.isArray @options.events
-      # we've got a list of event
-      @events = (new Event(event, @callback) for event in @options.events)
-      @render()
+  # each EventSource should invoke this callback after data collecting
+  fetch_events_callback: (token, results) =>
+    index = @pending_event_sources.indexOf token
 
-    else if @options.events.url?
-      # TODO: show spinner
-      #@$el.find('.mns-cal-body').addClass('data-loading')
-
-      # request url
-      url = @options.events.url
-
-      data = {}
-      # if server accept parameters
-      unless @options.events.parameterless
-        start_date = moment(@current).startOf('month').startOf('week')
-        end_date = moment(@current).endOf('month').endOf('week')
-
-        data =
-          start_date: start_date.toISOString()
-          end_date: end_date.toISOString()
-
-        data['calendar_id'] = @calendar_id if @calendar_id?
-
-      # perform AJAX query
-      $.getJSON(url, data)
-      .done @load_json
-      .fail ( jqxhr, textStatus, error) ->
-        # TODO do something with errors
-        alert(jqxhr, textStatus, error)
+    if index isnt -1
+      @pending_event_sources.splice(index, 1)
+      Array.prototype.push.apply @events, results
+      if @pending_event_sources.length is 0
+        @fetch_events_completed()
 
 
   # update skeleton
   render: () ->
     @update_header()
     rows = []
-
-
 
     day = moment(@current).startOf('month').startOf('week')
 
@@ -147,8 +149,8 @@ class Calendar
       body.append row.render()
 
   # update settings
-  redraw: () ->
-    @load_events()
+  refetch: () =>
+    @fetch_events()
 
   update: () ->
     undefined
