@@ -6,15 +6,18 @@
       replace: 'true',
       template: '<div></div>',
       link: function(scope, elem, attrs) {
+        var cache;
+        cache = [];
         scope.$watch(attrs['events'], function(newVal, oldVal) {
-          return elem.MnsCalendar('refetch');
+          elem.MnsCalendar('refetch');
+          return cache = newVal;
         }, true);
         return elem.MnsCalendar({
           events: [
             {
               type: 'function',
               "function": function() {
-                return scope[attrs['events']];
+                return cache;
               }
             }
           ]

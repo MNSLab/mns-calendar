@@ -8,15 +8,18 @@ angular.module 'mnsCalendar', []
     replace: 'true'
     template: '<div></div>'
     link: (scope, elem, attrs)  ->
+      cache = []
+
       scope.$watch attrs['events'], (newVal, oldVal) ->
         elem.MnsCalendar('refetch')
+        cache = newVal
       , true
 
       elem.MnsCalendar({
         events: [{
           type: 'function'
           function: () ->
-            scope[attrs['events']]
+            cache
         }]
       })
 
