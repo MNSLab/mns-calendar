@@ -455,13 +455,17 @@
     };
 
     function Calendar(el, options) {
+      this.update_header = bind(this.update_header, this);
       this.refetch = bind(this.refetch, this);
+      this.render = bind(this.render, this);
       this.fetch_events_callback = bind(this.fetch_events_callback, this);
       this.fetch_events_completed = bind(this.fetch_events_completed, this);
+      this.fetch_events = bind(this.fetch_events, this);
       this.set_calendar = bind(this.set_calendar, this);
       this.today_month = bind(this.today_month, this);
       this.next_month = bind(this.next_month, this);
       this.prev_month = bind(this.prev_month, this);
+      this.change_month = bind(this.change_month, this);
       this.options = $.extend({}, this.defaults, options);
       this.$el = $(el);
       this.today = moment().startOf('day');
@@ -470,7 +474,7 @@
       this.t = this.options['i18n']['translations'];
       this.max_slots = 4;
       this.setup_skeleton();
-      this.bootstrap_event_sources(options.events);
+      this.bootstrap_event_sources(this.options.events);
       this.render();
       if (this.calendars != null) {
         this.set_calendar(this.options.calendar);
@@ -541,20 +545,24 @@
       this.pending_event_sources = [];
       this.events = [];
       tokens = [];
-      ref = this.event_sources;
-      for (m = 0, len1 = ref.length; m < len1; m++) {
-        source = ref[m];
-        token = Math.random();
-        this.pending_event_sources.push(token);
-        tokens.push(token);
+      if (this.event_sources.length === 0) {
+        return this.render();
+      } else {
+        ref = this.event_sources;
+        for (m = 0, len1 = ref.length; m < len1; m++) {
+          source = ref[m];
+          token = Math.random();
+          this.pending_event_sources.push(token);
+          tokens.push(token);
+        }
+        ref1 = this.event_sources;
+        results1 = [];
+        for (n = 0, len2 = ref1.length; n < len2; n++) {
+          source = ref1[n];
+          results1.push(source.fetch(start_date, end_date, this.calendar_id, tokens.pop()));
+        }
+        return results1;
       }
-      ref1 = this.event_sources;
-      results1 = [];
-      for (n = 0, len2 = ref1.length; n < len2; n++) {
-        source = ref1[n];
-        results1.push(source.fetch(start_date, end_date, this.calendar_id, tokens.pop()));
-      }
-      return results1;
     };
 
     Calendar.prototype.fetch_events_completed = function() {

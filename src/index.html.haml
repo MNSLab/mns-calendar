@@ -73,16 +73,27 @@
       %div.col-md-8
         %h3 AngularJS Example
 
-        %div{'ng-app': 'test-app'}
-          %input{'ng-model': 'tekst' }
-          %button{'ng-click': 'events=events+[1]'} dodaj
+        %div{'ng-app': 'test-app', 'ng-controller': 'mainCtrl'}
+          %input{'ng-model': 'name'}
+          %input{'ng-model': 'start'}
+          %input{'ng-model': 'end'}
+          %button{'ng-click': 'addEvent()'} Dodaj
+
+          %hr
+
           %mns-calendar{events: 'events'}
 
         :coffee
           app = angular.module 'test-app', ['mnsCalendar']
-          .controller 'mainCtrl', () ->
+          .controller 'mainCtrl', ($scope) ->
             $scope.events = []
+            $scope.name = 'Event'
+            $scope.start = '2016-05-12'
+            $scope.end = '2016-05-20'
 
+            $scope.addEvent = () ->
+              $scope.events.push {name: $scope.name, start: $scope.start, end: $scope.end}
+            undefined
         %h3 jQuery Example
         %div#calendar
 

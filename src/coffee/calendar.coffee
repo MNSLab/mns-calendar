@@ -46,7 +46,7 @@ class Calendar
     @setup_skeleton()
 
     # Setup event sources
-    @bootstrap_event_sources(options.events)
+    @bootstrap_event_sources(@options.events)
 
     # render empty grid
     @render()
@@ -59,7 +59,7 @@ class Calendar
 
 
   # Time manipulation routines:
-  change_month: (diff) ->
+  change_month: (diff) =>
     @current.add(diff, 'month')
     @refetch()
 
@@ -94,20 +94,25 @@ class Calendar
       @event_sources.push obj if obj?
 
 
-  fetch_events: () ->
+  fetch_events: () =>
     start_date = moment(@current).startOf('month').startOf('week')
     end_date = moment(@current).endOf('month').endOf('week')
 
     @pending_event_sources = []
     @events = []
     tokens = []
-    for source in @event_sources
-      token = Math.random()
-      @pending_event_sources.push token
-      tokens.push token
 
-    for source in @event_sources
-      source.fetch(start_date, end_date, @calendar_id, tokens.pop())
+    if @event_sources.length == 0
+      @render()
+    else
+      for source in @event_sources
+        token = Math.random()
+        @pending_event_sources.push token
+        tokens.push token
+
+      for source in @event_sources
+        source.fetch(start_date, end_date, @calendar_id, tokens.pop())
+
 
   # executed after all EventSources completed work
   fetch_events_completed: () =>
@@ -128,7 +133,7 @@ class Calendar
 
 
   # update skeleton
-  render: () ->
+  render: () =>
     @update_header()
     rows = []
 
@@ -155,7 +160,7 @@ class Calendar
   update: () ->
     undefined
   #
-  update_header: () ->
+  update_header: () =>
     @$el.find('.mns-cal-title').text(@options['title'])
     @$el.find('.mns-cal-date').text(@current.format('MMMM YYYY'))
     @$el.find('.mns-cal-calendar-name').text(@calendar_name) if @calendars?
