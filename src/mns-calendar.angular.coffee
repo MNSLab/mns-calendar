@@ -11,8 +11,8 @@ angular.module 'mnsCalendar', []
       cache = []
 
       scope.$watch attrs['events'], (newVal, oldVal) ->
-        elem.MnsCalendar('refetch')
         cache = newVal
+        elem.MnsCalendar('refetch')
       , true
 
       elem.MnsCalendar({

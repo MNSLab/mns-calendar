@@ -9,8 +9,8 @@
         var cache;
         cache = [];
         scope.$watch(attrs['events'], function(newVal, oldVal) {
-          elem.MnsCalendar('refetch');
-          return cache = newVal;
+          cache = newVal;
+          return elem.MnsCalendar('refetch');
         }, true);
         return elem.MnsCalendar({
           events: [
