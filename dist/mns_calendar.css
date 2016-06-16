@@ -146,3 +146,8 @@
 .mns-cal .mns-cal-rows .label:hover {
   opacity: 0.8;
 }
+
+/* line 141, ../src/mns_calendar.scss */
+.mns-cal-row-header th {
+  overflow: hidden;
+}
