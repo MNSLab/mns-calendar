@@ -34,12 +34,12 @@ class JSONEventSource
       # perform AJAX query
       data_callback = @data_callback
       event_callback = @event_callback
-      
+
       $.getJSON(@url, data)
       .done (json) ->
         data_callback(token, (new Event(event, event_callback) for event in json))
       .fail ( jqxhr, textStatus, error) ->
         # TODO do something with errors
-        alert(jqxhr, textStatus, error)
+        console.log(jqxhr, textStatus, error)
         # complete request without data
-        callback(token, [])
+        data_callback(token, [])

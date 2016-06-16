@@ -79,7 +79,8 @@
                 class: 'text-success',
                 icon: 'birthday-cake',
                 background_class: 'text-warning',
-                color_class: 'text-success'
+                color_class: 'text-success',
+                weekdays_abbreviations: true
               }
             ]
           })</pre>
@@ -188,6 +189,7 @@
                     ]
                   }
                 ],
+                'weekdays_abbreviations': true,
                 callback: function(label, event) {
                   return $(label).popover({
                     container: 'body',

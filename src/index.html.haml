@@ -65,7 +65,8 @@
                     class: 'text-success',
                     icon: 'birthday-cake',
                     background_class: 'text-warning',
-                    color_class: 'text-success'
+                    color_class: 'text-success',
+                    weekdays_abbreviations: true
                   }
                 ]
               })
@@ -111,7 +112,7 @@
                   "icon": "warning",
                   "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non sagittis dolor. Nunc id dapibus enim. Nam ac ultrices justo, nec bibendum nunc. Phasellus mollis viverra mattis.",
                   "backgroundColor": "green",
-                  "textColor": "white"
+                  "textColor": "white",
                 },{
                   name: 'Event :)',
                   start: '2016-05-20',
@@ -154,7 +155,7 @@
                   ]
                 }
               ]
-
+              'weekdays_abbreviations': true,
               callback: (label, event) ->
                 $(label).popover
                   container: 'body'

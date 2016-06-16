@@ -46,8 +46,8 @@
             return results1;
           })());
         }).fail(function(jqxhr, textStatus, error) {
-          alert(jqxhr, textStatus, error);
-          return callback(token, []);
+          console.log(jqxhr, textStatus, error);
+          return data_callback(token, []);
         });
       }
     };
@@ -439,17 +439,16 @@
       title: 'MNS Calendar',
       callback: void 0,
       weekdays_names: true,
+      weekdays_abbreviations: false,
       events: [],
       calendar: void 0,
       calendars: [],
       i18n: {
-        lang: 'pl',
+        lang: 'en',
         translations: {
-          months: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'],
-          today: 'Dzisiaj',
-          next: 'Następny miesiąc',
-          prev: 'Poprzedni miesiąc',
-          week: 'Tydzień'
+          today: 'Today',
+          next: 'Next month',
+          prev: 'Previous month'
         }
       }
     };
@@ -600,8 +599,9 @@
       }
       body = this.$el.find('.mns-cal-body');
       body.empty();
+      console.log('Day: ' + day);
       if (this.options.weekdays_names) {
-        body.append(this.build_weekdays_header());
+        body.append(this.build_weekdays_header(day));
       }
       results1 = [];
       for (o = 0, len3 = rows.length; o < len3; o++) {
@@ -673,18 +673,17 @@
       }, span('.mns-cal-calendar-name'), ' ', span('.caret')), ul('.dropdown-menu', items));
     };
 
-    Calendar.prototype.build_weekdays_header = function() {
-      var day, days;
+    Calendar.prototype.build_weekdays_header = function(day) {
+      var d, days, diff;
       days = (function() {
-        var len1, m, ref, results1;
-        ref = moment.weekdays();
+        var m, results1;
         results1 = [];
-        for (m = 0, len1 = ref.length; m < len1; m++) {
-          day = ref[m];
-          results1.push(th('', day));
+        for (diff = m = 0; m <= 6; diff = ++m) {
+          d = moment(day).add(diff, 'days');
+          results1.push(th('', d.format('ddd' + (this.options['weekdays_abbreviations'] ? '' : 'd'))));
         }
         return results1;
-      })();
+      }).call(this);
       return div('', table('.table.table-condensed.table-bordered.text-center', tr('.mns-cal-row-header', days)));
     };
 
@@ -693,7 +692,11 @@
       header = div('.navbar-header', div('.navbar-brand', i('.fa.fa-calendar'), nbsp, span('.mns-cal-title')));
       dropdown = this.build_calendars_list();
       text = ul('.nav.navbar-nav', dropdown, div('.navbar-text.mns-cal-date'));
-      form = div('.navbar-form.navbar-right', div('.btn-toolbar', div('.btn-group', a('.btn.btn-default.mns-cal-today', this.t['today'])), div('.btn-group', a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')), a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right')))));
+      form = div('.navbar-form.navbar-right', div('.btn-toolbar', div('.btn-group', a('.btn.btn-default.mns-cal-today', this.t['today'])), div('.btn-group', a('.btn.btn-default.mns-cal-prev', {
+        title: this.t['prev']
+      }, i('.fa.fa-angle-left')), a('.btn.btn-default.mns-cal-next', {
+        title: this.t['next']
+      }, i('.fa.fa-angle-right')))));
       navbar = nav('.navbar.navbar-default', div('.container-fluid', header, text, form));
       body = div('.panel.panel-default.mns-cal-body');
       cal = div('.mns-cal', navbar, body);

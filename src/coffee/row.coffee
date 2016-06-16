@@ -1,5 +1,4 @@
 #= require<helpers.coffee>
-
 class Row
   constructor: (calendar, start_day) ->
     @current = calendar.current

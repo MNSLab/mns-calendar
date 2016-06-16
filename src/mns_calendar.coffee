@@ -34,15 +34,15 @@ class JSONEventSource
       # perform AJAX query
       data_callback = @data_callback
       event_callback = @event_callback
-      
+
       $.getJSON(@url, data)
       .done (json) ->
         data_callback(token, (new Event(event, event_callback) for event in json))
       .fail ( jqxhr, textStatus, error) ->
         # TODO do something with errors
-        alert(jqxhr, textStatus, error)
+        console.log(jqxhr, textStatus, error)
         # complete request without data
-        callback(token, [])
+        data_callback(token, [])
 
 class ArrayEventSource
   constructor: (options, @data_callback, @event_callback) ->
@@ -138,7 +138,6 @@ for tag_name in tags
 window['nbsp'] = document.createTextNode(String.fromCharCode(160))
 
 #= require<helpers.coffee>
-
 class Row
   constructor: (calendar, start_day) ->
     @current = calendar.current
@@ -328,17 +327,17 @@ class Calendar
     title: 'MNS Calendar'
     callback: undefined
     weekdays_names: true
+    weekdays_abbreviations: false
     events: []
     calendar: undefined
     calendars: []
     i18n:
-      lang: 'pl'
+      lang: 'en'
       translations:
-        months: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień']
-        today: 'Dzisiaj'
-        next: 'Następny miesiąc'
-        prev: 'Poprzedni miesiąc'
-        week: 'Tydzień'
+        today: 'Today'
+        next: 'Next month'
+        prev: 'Previous month'
+        #week: 'Tydzień'
 
 
   constructor: (el, options) ->
@@ -469,7 +468,8 @@ class Calendar
 
     body = @$el.find('.mns-cal-body')
     body.empty()
-    body.append @build_weekdays_header()  if @options.weekdays_names
+    console.log 'Day: '+ day
+    body.append @build_weekdays_header(day)  if @options.weekdays_names
     for row in rows
       body.append row.render()
 
@@ -521,8 +521,11 @@ class Calendar
     )
 
   # Create HTML table with weekdays names
-  build_weekdays_header: () ->
-    days = ( th('', day) for day in moment.weekdays() )
+  build_weekdays_header: (day) ->
+    days = for diff in [0..6]
+      d = moment(day).add(diff, 'days')
+      th('', d.format('ddd'  + (if @options['weekdays_abbreviations'] then '' else 'd') ))
+
     div('',
       table('.table.table-condensed.table-bordered.text-center',
         tr('.mns-cal-row-header', days)
@@ -546,8 +549,8 @@ class Calendar
       div('.btn-toolbar',
         div('.btn-group', a('.btn.btn-default.mns-cal-today', @t['today']) ),
         div('.btn-group',
-          a('.btn.btn-default.mns-cal-prev', i('.fa.fa-angle-left')),
-          a('.btn.btn-default.mns-cal-next', i('.fa.fa-angle-right'))
+          a('.btn.btn-default.mns-cal-prev', {title: @t['prev']}, i('.fa.fa-angle-left')),
+          a('.btn.btn-default.mns-cal-next', {title: @t['next']}, i('.fa.fa-angle-right'))
         )
       ) )
     navbar = nav('.navbar.navbar-default',
