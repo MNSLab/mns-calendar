@@ -464,12 +464,17 @@
       events: [],
       calendar: void 0,
       calendars: [],
+      lang: void 0,
       i18n: {
-        lang: 'en',
-        translations: {
+        en: {
           today: 'Today',
           next: 'Next month',
           prev: 'Previous month'
+        },
+        pl: {
+          today: 'Dzisiaj',
+          next: 'Następny miesiąc',
+          prev: 'Poprzedni miesiąc'
         }
       }
     };
@@ -492,7 +497,8 @@
       this.current = moment(this.today).startOf('month');
       this.callback = this.options.callback;
       console.log(this.callback);
-      this.t = this.options['i18n']['translations'];
+      this.lang = this.options.lang || moment.locale();
+      this.t = this.options['i18n'][this.lang];
       this.max_slots = 4;
       this.setup_skeleton();
       this.bootstrap_event_sources(this.options.events);

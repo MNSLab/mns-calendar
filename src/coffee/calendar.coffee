@@ -35,13 +35,16 @@ class Calendar
     events: []
     calendar: undefined
     calendars: []
+    lang: undefined
     i18n:
-      lang: 'en'
-      translations:
+      en:
         today: 'Today'
         next: 'Next month'
         prev: 'Previous month'
-        #week: 'Tydzień'
+      pl:
+        today: 'Dzisiaj'
+        next: 'Następny miesiąc'
+        prev: 'Poprzedni miesiąc'
 
 
   constructor: (el, options) ->
@@ -61,7 +64,8 @@ class Calendar
     console.log @callback
 
     # Translations
-    @t = @options['i18n']['translations']
+    @lang = @options.lang || moment.locale()
+    @t = @options['i18n'][@lang]
 
     # Max number of slots displayed per day
     @max_slots = 4

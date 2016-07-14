@@ -9,6 +9,7 @@
     %script{ src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js' }
     %script{ src: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js' }
     %script{ src: 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js' }
+    %script{ src: 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/locale/pl.js' }
     %link{ rel: 'stylesheet', href: 'dist/mns_calendar.css' }
     %script{ src: 'dist/mns_calendar.js' }
     %script{ src: 'https://rawgit.com/aFarkas/html5shiv/master/src/html5shiv.js' }
@@ -70,6 +71,8 @@
                   }
                 ]
               })
+      :javascript
+        moment.locale('pl')
 
       %div.col-md-8
         %h3 AngularJS Example
