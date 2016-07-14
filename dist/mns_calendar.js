@@ -433,11 +433,32 @@
   Calendar = (function() {
     var prefix;
 
+    Calendar.default_callback = function(label, event) {
+      var date, end, f, icon, start;
+      f = event.day_long ? 'LL' : 'LLL';
+      start = event.start.format(f);
+      end = event.end.format(f);
+      if (start === end) {
+        date = "" + start;
+      } else {
+        date = start + "&nbsp;–&nbsp;" + end;
+      }
+      icon = event.icon ? '<span class="fa fa-' + event.icon + '" style="margin-right:6px"></span> ' : '';
+      return $(label).popover({
+        container: 'body',
+        title: icon + event.name,
+        placement: 'bottom',
+        html: true,
+        content: '<div><i class="fa fa-calendar"></i> ' + date + '</div>' + '<p class="text-justify">' + (event.data.text || '') + '</p>',
+        trigger: 'focus'
+      });
+    };
+
     prefix = 'mns-cal';
 
     Calendar.prototype.defaults = {
       title: 'MNS Calendar',
-      callback: void 0,
+      callback: Calendar.default_callback,
       weekdays_names: true,
       weekdays_abbreviations: false,
       events: [],
@@ -470,6 +491,7 @@
       this.today = moment().startOf('day');
       this.current = moment(this.today).startOf('month');
       this.callback = this.options.callback;
+      console.log(this.callback);
       this.t = this.options['i18n']['translations'];
       this.max_slots = 4;
       this.setup_skeleton();

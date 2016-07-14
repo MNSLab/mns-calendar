@@ -322,10 +322,33 @@ class Event
 
 # Define the plugin class
 class Calendar
+  @default_callback: (label, event) ->
+    f = if event.day_long then 'LL' else 'LLL'
+    start = event.start.format(f)
+    end = event.end.format(f)
+
+    if start is end
+      date = "#{start}"
+    else
+      date = "#{start}&nbsp;–&nbsp;#{end}"
+
+    icon  = if event.icon
+      '<span class="fa fa-'+event.icon+'" style="margin-right:6px"></span> '
+    else
+      ''
+
+    $(label).popover
+      container: 'body'
+      title: icon+event.name
+      placement: 'bottom'
+      html: true
+      content: '<div><i class="fa fa-calendar"></i> '+date+'</div>'+'<p class="text-justify">'+(event.data.text||'')+'</p>'
+      trigger: 'focus'
+
   prefix = 'mns-cal'
   defaults:
     title: 'MNS Calendar'
-    callback: undefined
+    callback: Calendar.default_callback
     weekdays_names: true
     weekdays_abbreviations: false
     events: []
@@ -354,6 +377,7 @@ class Calendar
 
     # Callback fired after event label is created
     @callback = @options.callback
+    console.log @callback
 
     # Translations
     @t = @options['i18n']['translations']

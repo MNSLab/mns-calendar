@@ -156,12 +156,4 @@
                 }
               ]
               'weekdays_abbreviations': true,
-              callback: (label, event) ->
-                $(label).popover
-                  container: 'body'
-                  title: '<span class="fa fa-'+event.icon+'" style="margin-right:6px"></span> '+event.name
-                  placement: 'bottom'
-                  html: true
-                  content: '<small><b>Od: '+event.start.format('LLL') + '<br/>Do: '+event.end.format('LLL')+'</b></small><p class="text-justify">'+event.data.text+'</p>'
-                  trigger: 'focus'
             );
