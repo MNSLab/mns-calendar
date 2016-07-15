@@ -14,10 +14,11 @@
       this.calendar = options.calendar;
       this.parameterless = options.parameterless;
       this.url = options.url;
+      this.mapping = options.mapping;
     }
 
     JSONEventSource.prototype.fetch = function(start, end, calendar, token) {
-      var data, data_callback, event_callback, results;
+      var data, data_callback, event_callback, mapping, results;
       results = [];
       if ((this.calendar != null) && this.calendar !== calendar) {
         return this.callback(token, []);
@@ -29,22 +30,27 @@
             end_date: end.toISOString()
           };
           if (this.calendar == null) {
-            calendar = data['calendar_id'] = calendar;
+            data['calendar_id'] = calendar;
           }
         }
+        mapping = this.mapping;
         data_callback = this.data_callback;
         event_callback = this.event_callback;
         return $.getJSON(this.url, data).done(function(json) {
-          var event;
-          return data_callback(token, (function() {
+          var event, events;
+          events = (function() {
             var l, len, results1;
             results1 = [];
             for (l = 0, len = json.length; l < len; l++) {
               event = json[l];
+              if (mapping) {
+                event = mapping(event);
+              }
               results1.push(new Event(event, event_callback));
             }
             return results1;
-          })());
+          })();
+          return data_callback(token, events);
         }).fail(function(jqxhr, textStatus, error) {
           console.log(jqxhr, textStatus, error);
           return data_callback(token, []);
@@ -496,7 +502,6 @@
       this.today = moment().startOf('day');
       this.current = moment(this.today).startOf('month');
       this.callback = this.options.callback;
-      console.log(this.callback);
       this.lang = this.options.lang || moment.locale();
       this.t = this.options['i18n'][this.lang];
       this.max_slots = 4;
@@ -627,7 +632,6 @@
       }
       body = this.$el.find('.mns-cal-body');
       body.empty();
-      console.log('Day: ' + day);
       if (this.options.weekdays_names) {
         body.append(this.build_weekdays_header(day));
       }

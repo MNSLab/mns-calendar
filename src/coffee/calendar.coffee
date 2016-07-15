@@ -61,7 +61,6 @@ class Calendar
 
     # Callback fired after event label is created
     @callback = @options.callback
-    console.log @callback
 
     # Translations
     @lang = @options.lang || moment.locale()
@@ -177,7 +176,7 @@ class Calendar
 
     body = @$el.find('.mns-cal-body')
     body.empty()
-    console.log 'Day: '+ day
+
     body.append @build_weekdays_header(day)  if @options.weekdays_names
     for row in rows
       body.append row.render()

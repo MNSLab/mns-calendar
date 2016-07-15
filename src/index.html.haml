@@ -126,6 +126,9 @@
               {
                 type: 'json'
                 url: 'events.json'
+                mapping: (event) ->
+                  event['textColor'] = 'red'
+                  event
                 },
               {
                 type: 'function'

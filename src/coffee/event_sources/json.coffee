@@ -4,12 +4,13 @@
 #   calendar: overide calendar_id of all events
 #   paremeterless: if data source support quering for date range and calendar_id
 #   url: url of remote data source
+#   mapping: function applied to every event before return them to calendar
 class JSONEventSource
   constructor: (options, @data_callback, @event_callback) ->
     @calendar = options.calendar
     @parameterless = options.parameterless
     @url = options.url
-
+    @mapping = options.mapping
 
   ##
   # Return event overlaping given period [start, end] in given calendar
@@ -28,8 +29,10 @@ class JSONEventSource
           start_date: start.toISOString()
           end_date: end.toISOString()
 
-        calendar =
+        # calendar =
         data['calendar_id'] = calendar unless @calendar?
+
+      mapping = @mapping # closure
 
       # perform AJAX query
       data_callback = @data_callback
@@ -37,7 +40,10 @@ class JSONEventSource
 
       $.getJSON(@url, data)
       .done (json) ->
-        data_callback(token, (new Event(event, event_callback) for event in json))
+        events = for event in json
+          event = mapping(event) if mapping
+          new Event(event, event_callback)
+        data_callback(token, events)
       .fail ( jqxhr, textStatus, error) ->
         # TODO do something with errors
         console.log(jqxhr, textStatus, error)

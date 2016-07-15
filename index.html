@@ -150,7 +150,11 @@
                     ]
                   }, {
                     type: 'json',
-                    url: 'events.json'
+                    url: 'events.json',
+                    mapping: function(event) {
+                      event['textColor'] = 'red';
+                      return event;
+                    }
                   }, {
                     type: 'function',
                     "function": function(start, end, calendar) {
