@@ -455,7 +455,7 @@
         title: icon + event.name,
         placement: 'bottom',
         html: true,
-        content: '<div><i class="fa fa-calendar"></i> ' + date + '</div>' + '<p class="text-justify">' + (event.data.text || '') + '</p>',
+        content: '<div><i class="fa fa-calendar fa-fw"></i> ' + date + '</div>' + (event.data.text || ''),
         trigger: 'focus'
       });
     };
@@ -466,7 +466,7 @@
       title: 'MNS Calendar',
       callback: Calendar.default_callback,
       weekdays_names: true,
-      weekdays_abbreviations: false,
+      weekdays_abbreviations: true,
       events: [],
       calendar: void 0,
       calendars: [],
@@ -712,11 +712,11 @@
         results1 = [];
         for (diff = m = 0; m <= 6; diff = ++m) {
           d = moment(day).add(diff, 'days');
-          results1.push(th('', d.format('ddd' + (this.options['weekdays_abbreviations'] ? '' : 'd'))));
+          results1.push(th('.text-center', d.format('ddd' + (this.options['weekdays_abbreviations'] ? '' : 'd'))));
         }
         return results1;
       }).call(this);
-      return div('', table('.table.table-condensed.table-bordered.text-center', tr('.mns-cal-row-header', days)));
+      return div('', table('.table.table-condensed.table-bordered.text-center', tr('.mns-cal-row-header.text-center', days)));
     };
 
     Calendar.prototype.setup_skeleton = function() {

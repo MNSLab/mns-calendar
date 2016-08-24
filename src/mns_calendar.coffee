@@ -348,7 +348,7 @@ class Calendar
       title: icon+event.name
       placement: 'bottom'
       html: true
-      content: '<div><i class="fa fa-calendar"></i> '+date+'</div>'+'<p class="text-justify">'+(event.data.text||'')+'</p>'
+      content: '<div><i class="fa fa-calendar fa-fw"></i> '+date+'</div>'+(event.data.text||'')
       trigger: 'focus'
 
   prefix = 'mns-cal'
@@ -356,7 +356,7 @@ class Calendar
     title: 'MNS Calendar'
     callback: Calendar.default_callback
     weekdays_names: true
-    weekdays_abbreviations: false
+    weekdays_abbreviations: true
     events: []
     calendar: undefined
     calendars: []
@@ -557,11 +557,11 @@ class Calendar
   build_weekdays_header: (day) ->
     days = for diff in [0..6]
       d = moment(day).add(diff, 'days')
-      th('', d.format('ddd'  + (if @options['weekdays_abbreviations'] then '' else 'd') ))
+      th('.text-center', d.format('ddd'  + (if @options['weekdays_abbreviations'] then '' else 'd') ))
 
     div('',
       table('.table.table-condensed.table-bordered.text-center',
-        tr('.mns-cal-row-header', days)
+        tr('.mns-cal-row-header.text-center', days)
     ))
 
 
