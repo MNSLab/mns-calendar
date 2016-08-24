@@ -712,7 +712,7 @@
         results1 = [];
         for (diff = m = 0; m <= 6; diff = ++m) {
           d = moment(day).add(diff, 'days');
-          results1.push(th('.text-center', d.format('ddd' + (this.options['weekdays_abbreviations'] ? '' : 'd'))));
+          results1.push(th('.text-center', d.format('ddd' + (this.options['weekdays_abbreviations'] ? '' : 'd') + '.')));
         }
         return results1;
       }).call(this);

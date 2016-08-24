@@ -232,7 +232,7 @@ class Calendar
   build_weekdays_header: (day) ->
     days = for diff in [0..6]
       d = moment(day).add(diff, 'days')
-      th('.text-center', d.format('ddd'  + (if @options['weekdays_abbreviations'] then '' else 'd') ))
+      th('.text-center', d.format('ddd'  + (if @options['weekdays_abbreviations'] then '' else 'd')+'.' ))
 
     div('',
       table('.table.table-condensed.table-bordered.text-center',
